@@ -1,0 +1,18 @@
+base:
+  tie_apiurl: "https://foo.bar/api/"
+  tie_apikey: "12345683127481209123789"
+  misp_apiurl: "https://misp.foo.bar"
+  misp_apikey: "asd22asdt9898asdfj120asd9213jas"
+  misp_verifycert: "False"
+
+organisation:
+  name: "ACME"
+  uuid: "5804adw2-12fe-1234-34av-07lk82aw012a"
+
+events:
+  base_threat_level: "3"
+  published: "False"
+  c2server_info: "TIE Daily C2Server"
+
+attributes:
+  to_ids: "False"
