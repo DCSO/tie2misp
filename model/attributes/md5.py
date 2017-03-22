@@ -6,15 +6,15 @@ import datetime
 from model import MISPAttribute
 
 
-class IPv4(MISPAttribute):
+class MD5(MISPAttribute):
     def __init__(self):
         MISPAttribute.__init__(self)
-        self.data_type = "IPv4"
+        self.data_type = "MD5"
 
     def serialize(self):
         dt = datetime.datetime.now()
         json_object = dict()
-        json_object['category'] = 'Network activity'
+        json_object['category'] = 'Payload delivery'
         comment = self.data_type + ' - Confidence: ' + str(self.confidence)
 
         if not self.families:
@@ -31,29 +31,26 @@ class IPv4(MISPAttribute):
         json_object['uuid'] = self.id
         json_object['timestamp'] = dt.strftime("%s")
         json_object['to_ids'] = True
-        json_object['value'] = self.value.replace('/32', '')
-        json_object['type'] = 'ip-dst'
+        json_object['value'] = self.value
+        json_object['type'] = 'md5'
 
         return json_object
-        # return {'category': 'Network activity', 'comment': self.data_type + ' - Confidence: ' +
-        #        self.confidence, 'uuid': self.id, 'timestamp': dt.strftime("%s"), 'to_ids': 'true',
-        #        'value': self.value, 'type': 'ip-dst'}
 
     @staticmethod
     def parse(item):
-        ipv4 = IPv4()
-        ipv4.actors = item["actors"]
-        ipv4.families = item["families"]
-        ipv4.value = item["value"]
-        ipv4.id = item["id"]
-        ipv4.severity = item["max_severity"]
-        ipv4.confidence = item["max_confidence"]
+        md5 = MD5()
+        md5.actors = item["actors"]
+        md5.families = item["families"]
+        md5.value = item["value"]
+        md5.id = item["id"]
+        md5.severity = item["max_severity"]
+        md5.confidence = item["max_confidence"]
 
         # replace 'mdf:' in front of the hash
-        if ipv4.value.find('/32', 0, len(ipv4.value)) :
-            ipv4.value = ipv4.value.replace('/32', '')
+        if md5.value.startswith('md5:'):
+            md5.value = md5.value.replace('md5:', '')
 
-        return ipv4
+        return md5
 
     def upload(self, misp, event):
-        misp.add_ipdst(event, self.value, self.category, True, self.comment, None, False)
+        misp.add_hashes(event, self.category, None, self.value, None, None, None, self.comment, True, None, False)

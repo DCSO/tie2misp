@@ -4,7 +4,7 @@ Copyright (c) 2017, DCSO GmbH
 """
 import requests
 from model import Config
-from model.events import C2Server
+from model.events import C2Server, Malware
 from datetime import datetime, timedelta
 
 
@@ -23,8 +23,15 @@ class Loader:
         url = conf.tie_api_url + conf.url_iocs + "?category=c2-server&created_since=" + date_since + '&created_until=' + date_until
 
         finished = True
-        c2server_event = C2Server(conf.org_name, conf.org_uuid, conf.event_base_thread_level, conf.event_published,
-                                  conf.event_info_c2server, startdate)
+        event = None
+
+        # Eventtype
+        if type == 'c2server':
+            event = C2Server(conf.org_name, conf.org_uuid, conf.event_base_thread_level, conf.event_published,
+                             conf.event_info_c2server, startdate)
+        elif type == 'malware':
+            event = Malware(conf.org_name, conf.org_uuid, conf.event_base_thread_level, conf.event_published,
+                            conf.event_info_malware, startdate)
 
         index = 0
         while finished:
@@ -63,7 +70,7 @@ class Loader:
                         else:
                             if isinstance(val, list) and "params" not in key:
                                 print("Parsing... - Index: " + str(index))
-                                C2Server.parse(c2server_event, val)
+                                C2Server.parse(event, val)
 
                 except ValueError:
                     print("Error:")
@@ -77,13 +84,13 @@ class Loader:
 
         if not noupload:
             # Load things up
-            c2server_event.upload(conf)
+            event.upload(conf)
 
         if file:
             # Serialize event as MISP Event
-            json_output = c2server_event.serialize()
+            json_output = event.serialize()
             # print(json_output)
-            outfile = "c2server_" + str(c2server_event.uuid) + ".json"
+            outfile = "c2server_" + str(event.uuid) + ".json"
             print(outfile)
             with open(outfile, "w") as text_file:
                 text_file.write(json_output)

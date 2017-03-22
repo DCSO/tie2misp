@@ -31,6 +31,8 @@ def startup(type, delay, file, noupload, date):
     """
     if type == 'c2server':
         pass
+    elif type == 'malware':
+        pass
     else:
         error = True
         click.echo('Wrong Argument! Type \'python tie2misp.py --help\' for more information\'s')

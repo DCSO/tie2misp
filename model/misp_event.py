@@ -139,6 +139,7 @@ class MISPEvent(metaclass=ABCMeta):
         misp = PyMISP(config.misp_api_url, config.misp_api_key, False, debug=False)
         event = misp.new_event(0, config.event_base_thread_level, 2, self.info)
 
+
         for tag in self.tags:
             # tag.upload(misp, event)
             pass
