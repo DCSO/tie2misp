@@ -12,7 +12,8 @@ organisation:
 events:
   base_threat_level: "3"
   published: "False"
-  c2server_info: "TIE Daily C2Server"
+  info_c2server: "TIE Daily C2Server"
+  info_malware: "TIE Daily Malware"
 
 attributes:
   to_ids: "False"
