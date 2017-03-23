@@ -155,7 +155,7 @@ class Config:
         conf.event_base_thread_level = configs["events"]["base_threat_level"]
         conf.event_published = configs["events"]["published"]
         conf.event_info_c2server = configs["events"]["info_c2server"]
-        conf.event_info_c2server = configs["events"]["info_malware"]
+        conf.event_info_malware = configs["events"]["info_malware"]
         conf.attr_to_ids = configs["attributes"]["to_ids"]
 
         conf.url_categories = "categories"

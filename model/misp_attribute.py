@@ -54,11 +54,6 @@ class MISPAttribute(metaclass=ABCMeta):
     def value(self):
         return self.__Value
 
-    @property
-    def comment(self):
-        com = self.data_type + ' - Confidence: ' + str(self.confidence)
-        return com
-
     # Setter
     @actors.setter
     def actors(self, value):
@@ -109,4 +104,19 @@ class MISPAttribute(metaclass=ABCMeta):
     @abstractmethod
     def upload(self, misp, event):
         pass
+
+    @property
+    def comment(self):
+        val = self.data_type + ' - Confidence: ' + str(self.confidence)
+
+        if len(self.families) > 0:
+            val += ' - Families: '
+            i = 0
+            for item in self.families:
+                val += item
+                i += 1
+                # Add comma after each family except the last one
+                if len(self.families) < 1:
+                    val += ', '
+        return val
 

@@ -15,19 +15,7 @@ class SHA256(MISPAttribute):
         dt = datetime.datetime.now()
         json_object = dict()
         json_object['category'] = 'Payload delivery'
-        comment = self.data_type + ' - Confidence: ' + str(self.confidence)
-
-        if not self.families:
-            comment += ' - Families: '
-            i = 0
-            for item in self.families:
-                comment += item
-                i += 1
-                # Add comma after each family except the last one
-                if len(self.families) < 1:
-                    comment += ', '
-
-        json_object['comment'] = comment
+        json_object['comment'] = self.comment
         json_object['uuid'] = self.id
         json_object['timestamp'] = dt.strftime("%s")
         json_object['to_ids'] = True
