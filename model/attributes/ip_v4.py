@@ -15,19 +15,7 @@ class IPv4(MISPAttribute):
         dt = datetime.datetime.now()
         json_object = dict()
         json_object['category'] = 'Network activity'
-        comment = self.data_type + ' - Confidence: ' + str(self.confidence)
-
-        if not self.families:
-            comment += ' - Families: '
-            i = 0
-            for item in self.families:
-                comment += item
-                i += 1
-                # Add comma after each family except the last one
-                if len(self.families) < 1:
-                    comment += ', '
-
-        json_object['comment'] = comment
+        json_object['comment'] = self.comment
         json_object['uuid'] = self.id
         json_object['timestamp'] = dt.strftime("%s")
         json_object['to_ids'] = True
@@ -48,6 +36,11 @@ class IPv4(MISPAttribute):
         ipv4.id = item["id"]
         ipv4.severity = item["max_severity"]
         ipv4.confidence = item["max_confidence"]
+
+        # replace 'mdf:' in front of the hash
+        if ipv4.value.find('/32', 0, len(ipv4.value)) :
+            ipv4.value = ipv4.value.replace('/32', '')
+
         return ipv4
 
     def upload(self, misp, event):

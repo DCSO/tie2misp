@@ -30,7 +30,7 @@ $ cp /settings/config.sample.yml /settings/config.yml
 $ vim /settings/config.yml
 ```
 
-# HowTo`
+# HowTo
 To start the parser just run:
 ```bash
 $ python3 tie2misp.py c2server
@@ -54,7 +54,7 @@ additionally create a local JSON MISP file.
 $ python3 tie2misp.py c2server --date 2017-03-13 --file
 ```
 
-If you run the tie2misp parser with cron and want to process all IOCs from the last day, you could use the `--delay` INT option. As
+If you run the tie2misp parser with cron and want to process all IOCs from the last day, you could use the `--delay INT` option. As
 example:
 ```bash
 $ python3 tie2misp.py c2server --delay 1

@@ -17,6 +17,7 @@ class Config:
         self.__Event_Base_Threat_Level = ""
         self.__Event_Published = ""
         self.__Event_Info_C2Server = ""
+        self.__Event_Info_Malware = ""
         self.__Attr_ToIDS = ""
         self.__URL_Categories = ""
         self.__URL_IOCs = ""
@@ -49,6 +50,10 @@ class Config:
     @property
     def event_info_c2server(self):
         return self.__Event_Info_C2Server
+
+    @property
+    def event_info_malware(self):
+        return self.__Event_Info_Malware
 
     @property
     def attr_to_ids(self):
@@ -104,6 +109,10 @@ class Config:
     def event_info_c2server(self, value):
         self.__Event_Info_C2Server = value
 
+    @event_info_malware.setter
+    def event_info_malware(self, value):
+        self.__Event_Info_Malware = value
+
     @attr_to_ids.setter
     def attr_to_ids(self, value):
         self.__Attr_ToIDS = value
@@ -145,7 +154,8 @@ class Config:
         conf.org_uuid = configs["organisation"]["uuid"]
         conf.event_base_thread_level = configs["events"]["base_threat_level"]
         conf.event_published = configs["events"]["published"]
-        conf.event_info_c2server = configs["events"]["c2server_info"]
+        conf.event_info_c2server = configs["events"]["info_c2server"]
+        conf.event_info_malware = configs["events"]["info_malware"]
         conf.attr_to_ids = configs["attributes"]["to_ids"]
 
         conf.url_categories = "categories"
