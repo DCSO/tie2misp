@@ -1,0 +1,4 @@
+requests
+pyyaml
+click
+pymisp
