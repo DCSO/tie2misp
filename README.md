@@ -1,4 +1,4 @@
-Tie2misp
+tie2misp [![Build Status](https://travis-ci.org/DCSO/tie2misp.svg?branch=master)](https://travis-ci.org/DCSO/tie2misp)
 =====
 Import DCSO TIE IOCs as MISP events
 
