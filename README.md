@@ -26,38 +26,38 @@ required API keys and URLs. To create the config file, just copy the `config.sam
 it.
 
 ```bash
-$ cp /settings/config.sample.yml /settings/config.yml
-$ vim /settings/config.yml
+$ cp settings/config.sample.yml settings/config.yml
+$ vim settings/config.yml
 ```
 
 # HowTo
 To start the parser just run:
 ```bash
-$ python3 tie2misp.py c2server
+$ ./tie2misp c2server
 ```
 The parser will now process all IOCs as attributes beginning from the actual system date.
 
 To process attributes from a specific date you can use the `--date YYYY-MM-DD` option
 ```bash
-$ python3 tie2misp.py c2server --date 2017-03-13
+$ ./tie2misp c2server --date 2017-03-13
 ```
 
 If you don't want to upload attributes directly, you could use the `--noupload` and `--file` flag. The parser will then
 create a local file named `c2server_031609be-0d88-11e7-9c31-784f437ac6ae.json` in the tie2misp directory
 ```bash
-$ python3 tie2misp.py c2server --date 2017-03-13 --noupload --file
+$ ./tie2misp c2server --date 2017-03-13 --noupload --file
 ````
 
 Additionally, you can set only the `--file` flag. The parser will now create and upload attributes for MISP and
 additionally create a local JSON MISP file.
 ```bash
-$ python3 tie2misp.py c2server --date 2017-03-13 --file
+$ ./tie2misp c2server --date 2017-03-13 --file
 ```
 
 If you run the tie2misp parser with cron and want to process all IOCs from the last day, you could use the `--delay INT` option. As
 example:
 ```bash
-$ python3 tie2misp.py c2server --delay 1
+$ ./tie2misp c2server --delay 1
 ```
 the parser will process with the system date 2017-03-14 all IOCs from 2017-03-13. You could define a delay greater 1
 but keep in mind that you could get a lot of IOCs...

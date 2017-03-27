@@ -1,12 +1,14 @@
+#!/usr/bin/env python3
+
 """
 DCSO TIE2MISP Parser
 Copyright (c) 2017, DCSO GmbH
 """
+
 import click
 from datetime import datetime, timedelta
 from model import Config
 from loader import Loader
-
 
 @click.command()
 @click.argument('type')
