@@ -1,0 +1,19 @@
+base:
+  tie_apiurl: "https://tie.dcso.de/api/v1/"
+  tie_apikey: "SETME"
+  misp_apiurl: "https://misp.foo.bar"
+  misp_apikey: "asd22asdt9898asdfj120asd9213jas"
+  misp_verifycert: "False"
+
+organisation:
+  name: "ACME"
+  uuid: "5804adw2-12fe-1234-34av-07lk82aw012a"
+
+events:
+  base_threat_level: "3"
+  published: "False"
+  info_c2server: "TIE Daily C2Server"
+  info_malware: "TIE Daily Malware"
+
+attributes:
+  to_ids: "False"
