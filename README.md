@@ -26,8 +26,8 @@ required API keys and URLs. To create the config file, just copy the `config.sam
 it.
 
 ```bash
-$ cp /settings/config.sample.yml /settings/config.yml
-$ vim /settings/config.yml
+$ cp settings/config.sample.yml settings/config.yml
+$ vim settings/config.yml
 ```
 
 # HowTo
