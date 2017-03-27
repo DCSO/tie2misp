@@ -17,7 +17,7 @@ Import DCSO TIE IOCs as MISP events
 # Install
 ```bash
 $ git clone https://github.com/DCSO/tie2misp.git
-$ pip3 install requests pyyaml click pymisp
+$ pip3 install -r requirements.txt
 ```
 
 ## Configuration
