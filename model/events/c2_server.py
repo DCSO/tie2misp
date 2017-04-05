@@ -4,7 +4,6 @@ Copyright (c) 2017, DCSO GmbH
 """
 from model.attributes import IPv4, DomainName, URLVerbatim
 from model.misp_event import MISPEvent
-from model.misp_tag import MISPTag
 
 
 class C2Server(MISPEvent):

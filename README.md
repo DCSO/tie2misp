@@ -8,6 +8,9 @@ Import DCSO TIE IOCs as MISP events
 - TIE API Key http://tie.dcso.de
 - MISP API Key
 
+The MISP user should be able to create events and to tag them. For this we suggest to create a separate role with the 
+permission `Tagger` enabled.  
+
 ## Packages
 - Requests http://python-requests.org
 - PyYAML http://pyyaml.org

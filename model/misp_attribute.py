@@ -16,6 +16,7 @@ class MISPAttribute(metaclass=ABCMeta):
         self.__Category = ""
         self.__Data_Type = ""
         self.__Value = ""
+        self.__Tags = list()
 
     # Getter
     @property

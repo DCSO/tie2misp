@@ -14,6 +14,9 @@ events:
   published: "False"
   info_c2server: "TIE Daily C2Server"
   info_malware: "TIE Daily Malware"
+  base_confidence: "80"
+  base_severity: "2"
 
 attributes:
   to_ids: "False"
+

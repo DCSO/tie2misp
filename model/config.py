@@ -3,6 +3,7 @@ DCSO TIE2MISP Parser
 Copyright (c) 2017, DCSO GmbH
 """
 import yaml
+import warnings
 
 
 class Config:
@@ -160,4 +161,38 @@ class Config:
 
         conf.url_categories = "categories"
         conf.url_iocs = "iocs"
+
+        conf.value_check()
+
         return conf
+
+    def value_check(self):
+        # Mandatory fields
+        if self.tie_api_key is None or self.tie_api_key == "":
+            raise RuntimeError("No TIE API key found. An API Key is mandatory to start tie2misp")
+        if self.tie_api_url is None or self.tie_api_url == "":
+            raise RuntimeError("No TIE URL found. An URL is mandatory to start tie2misp")
+
+        # Optional fields
+        if self.misp_api_key is None or self.misp_api_key == "":
+            warnings.warn("No MISP API key found. TIE2MISP will only work with --file flag", category=RuntimeWarning)
+        if self.misp_api_url is None or self.misp_api_url == "":
+            warnings.warn("No MISP URL found. TIE2MISP will only work with --file flag", category=RuntimeWarning)
+        if self.org_name is None or self.org_name == "":
+            warnings.warn("No organisation name is defined. MISP require a organisation name to work properly", category=RuntimeWarning)
+        if self.org_uuid is None or len(self.org_uuid) <= 10:
+            warnings.warn("No organisation UUID is set or UUID is to short. MISP require a organisation UUID to work properly", category=RuntimeWarning)
+        if self.event_base_thread_level is None or self.event_base_thread_level == "":
+            warnings.warn("No base thread level is set. Its recommend to set a proper base threat level. Threat level is set to 3.", category=RuntimeWarning)
+            self.event_base_thread_level = "3"
+        if self.event_published is None or self.event_published == "":
+            warnings.warn("No publishing parameter ist set. Its recommend to set a proper publishing parameter. Publishing is set to False", category=RuntimeWarning)
+            self.event_published = "False"
+        if self.event_info_c2server is None or self.event_info_c2server == "":
+            warnings.warn("No C2 Server info lable is set. Its recommend to set a proper C2 server info. Set default name.", category=RuntimeWarning)
+            self.event_info_c2server = "TIE Daily C2Server"
+        if self.event_info_malware is None or self.event_info_malware == "":
+            warnings.warn("No C2 Server info lable is set. Its recommend to set a proper C2 server info. Set default name.", category=RuntimeWarning)
+            self.__Event_Info_Malware = "TIE Daily Malware"
+
+

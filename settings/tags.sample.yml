@@ -1,0 +1,23 @@
+# If you don't need some tags just remove them or comment them out
+event_base_tags:
+  1: "tlp:amber"
+
+c2_attribute_tags:
+  domainname:
+    1: "dn1"
+  url_verbatim:
+    1: "url1"
+  ipv4:
+    1: "ip1"
+    2: "ip2"
+  #ipv6:
+    #1:
+    #2:
+malware_attribute_tags:
+  hash:
+    1: "oof"
+    2: "aab"
+  domainname:
+    1: "dn1"
+  url_verbatim:
+    1: "url1"

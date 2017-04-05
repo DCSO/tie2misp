@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 class Loader:
 
     @staticmethod
-    def start(conf, type, startdate, file, noupload):
+    def start(conf, tags, type, startdate, file, noupload):
 
         # Building Auth Header
         conf_authHeader = {'Authorization': 'Bearer ' + conf.tie_api_key}
@@ -39,6 +39,7 @@ class Loader:
         index = 0
         while finished:
             # myResponse = requests.get(url, headers=authHeader, params=query)
+            print("Querry URL: " + url)
             myResponse = requests.get(url, headers=conf_authHeader)
             # print(query)
             # For successful API call, response code will be 200 (OK)
@@ -74,9 +75,9 @@ class Loader:
                             if isinstance(val, list) and "params" not in key:
                                 print("Parsing... - Index: " + str(index))
                                 if type == 'c2server':
-                                    C2Server.parse(event, val)
+                                    C2Server.parse(event, tags, val)
                                 elif type == 'malware':
-                                    Malware.parse(event, val)
+                                    Malware.parse(event, tags, val)
 
                 except ValueError:
                     print("Error:")
@@ -90,7 +91,7 @@ class Loader:
 
         if not noupload:
             # Load things up
-            event.upload(conf)
+            event.upload(conf, tags)
 
         if file:
             # Serialize event as MISP Event
