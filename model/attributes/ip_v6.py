@@ -40,7 +40,6 @@ class IPv6(MISPAttribute):
         return ipv6
 
     def upload(self, misp, event):
-        misp.add_ipdst(event, self.value, self.category, True, self.comment, None, False)
-
-
+        attr = misp.add_ipdst(event, self.value, self.category, True, self.comment, None, False)
+        self.upload_tags(misp, attr)
 

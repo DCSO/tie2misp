@@ -95,7 +95,7 @@ class MISPEvent(metaclass=ABCMeta):
 
     @staticmethod
     @abstractstaticmethod
-    def parse(misp_event, val):
+    def parse(misp_event, val, tags):
         pass
 
     def serialize(self):

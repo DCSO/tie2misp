@@ -55,6 +55,10 @@ class MISPAttribute(metaclass=ABCMeta):
     def value(self):
         return self.__Value
 
+    @property
+    def tags(self):
+        return self.__Tags
+
     # Setter
     @actors.setter
     def actors(self, value):
@@ -106,6 +110,10 @@ class MISPAttribute(metaclass=ABCMeta):
     def upload(self, misp, event):
         pass
 
+    # Tag handling
+    def append_tags(self, tag):
+        self.__Tags.append(tag)
+
     @property
     def comment(self):
         val = self.data_type + ' - Confidence: ' + str(self.confidence)
@@ -121,3 +129,17 @@ class MISPAttribute(metaclass=ABCMeta):
                     val += ', '
         return val
 
+    def upload_tags(self, misp, event):
+
+        # Get Attribute UUID
+        uuid = None
+        attr_list = event['Event']['Attribute']
+        if len(attr_list) > 0:
+            for attr in attr_list:
+                if self.value in attr['value']:
+                    uuid = attr['uuid']
+
+        # Upload all given attribute tags
+        if len(self.tags) > 0 and uuid is not None:
+            for tag in self.tags:
+                misp.tag(uuid, tag)

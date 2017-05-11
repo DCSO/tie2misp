@@ -39,4 +39,5 @@ class URLVerbatim(MISPAttribute):
         return url
 
     def upload(self, misp, event):
-        misp.add_url(event, self.value, self.category, True, self.comment, None, False)
+        attr = misp.add_url(event, self.value, self.category, True, self.comment, None, False)
+        self.upload_tags(misp, attr)

@@ -75,9 +75,10 @@ class Loader:
                             if isinstance(val, list) and "params" not in key:
                                 print("Parsing... - Index: " + str(index))
                                 if type == 'c2server':
-                                    C2Server.parse(event, tags, val)
+                                    C2Server.parse(event, val, tags)
                                 elif type == 'malware':
-                                    Malware.parse(event, tags, val)
+                                    Malware.parse(event, val, tags)
+
 
                 except ValueError:
                     print("Error:")
@@ -89,9 +90,19 @@ class Loader:
                 print(myResponse.content)
                 myResponse.raise_for_status()
 
+        # Add Base Tags
+        if isinstance(event, C2Server):
+            if tags.c2tags_base is not None:
+                for val in tags.c2tags_base:
+                    event.append_tags(tags.c2tags_base[val])
+        elif isinstance(event, Malware):
+            if tags.malwaretags_base is not None:
+                for val in tags.c2tags_base:
+                    event.append_tags(tags.c2tags_base[val])
+
         if not noupload:
             # Load things up
-            event.upload(conf, tags)
+            event.upload(conf)
 
         if file:
             # Serialize event as MISP Event

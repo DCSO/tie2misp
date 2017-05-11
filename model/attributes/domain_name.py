@@ -39,9 +39,5 @@ class DomainName(MISPAttribute):
         return dn
 
     def upload(self, misp, event):
-        response = misp.add_domain(event, self.value, self.category, True, self.comment, None, False)
-
-        # Upload all given attribute tags
-        for tag in self.tags:
-            misp.tag(event['Event']['uuid'], tag, True)
-
+        attr = misp.add_domain(event, self.value, self.category, True, self.comment, None, False)
+        self.upload_tags(misp, attr)

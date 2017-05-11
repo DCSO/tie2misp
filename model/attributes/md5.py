@@ -41,4 +41,5 @@ class MD5(MISPAttribute):
         return md5
 
     def upload(self, misp, event):
-        misp.add_hashes(event, self.category, None, self.value, None, None, None, self.comment, True, None, False)
+        attr = misp.add_hashes(event, self.category, None, self.value, None, None, None, self.comment, True, None, False)
+        self.upload_tags(misp, attr)
