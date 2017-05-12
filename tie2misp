@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 -W ignore::DeprecationWarning
+#!/usr/bin/env python3
 
 """
 DCSO TIE2MISP Parser
