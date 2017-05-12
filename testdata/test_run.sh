@@ -8,7 +8,9 @@ if [ -z ${TIE_TOKEN+x} ]; then
    ./tie2misp --help
 else
     sed "s/SETME/$TIE_TOKEN/" testdata/config.yml > settings/config.yml
+    sed "s/SETME/$TIE_TOKEN/" testdata/tags.yml > settings/tags.yml
     ./tie2misp c2server --date 2017-03-13 --noupload --file | tail -n 1 | xargs jq '.Event.Attribute | length' > length
     test `cat length` -gt "0"
     rm -f settings/config.yml
+    rm -f settings/tags.ym
 fi

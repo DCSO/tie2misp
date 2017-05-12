@@ -61,14 +61,18 @@ def startup(type, delay, file, noupload, date):
 
     if not error:
         # Loading config file
-        conf = Config.parse("settings/config.yml")
-        tags = Tags.parse("settings/tags.yml")
-        # calculate start date
-        if given_date != '':
-            Loader.start(conf, tags, type, given_date, file, noupload)
-        else:
-            dt = datetime.now() - timedelta(days=delay)
-            Loader.start(conf, tags, type, dt, file, noupload)
+        try:
+            conf = Config.parse("settings/config.yml")
+            tags = Tags.parse("settings/tags.yml")
+            # calculate start date
+            if given_date != '':
+                Loader.start(conf, tags, type, given_date, file, noupload)
+            else:
+                dt = datetime.now() - timedelta(days=delay)
+                Loader.start(conf, tags, type, dt, file, noupload)
+        except FileNotFoundError:
+            print("Error:")
+            print("config.yml and/or tags.yml not found")
 
 
 if __name__ == '__main__':
