@@ -23,9 +23,6 @@ class IPv4(MISPAttribute):
         json_object['type'] = 'ip-dst'
 
         return json_object
-        # return {'category': 'Network activity', 'comment': self.data_type + ' - Confidence: ' +
-        #        self.confidence, 'uuid': self.id, 'timestamp': dt.strftime("%s"), 'to_ids': 'true',
-        #        'value': self.value, 'type': 'ip-dst'}
 
     @staticmethod
     def parse(item):

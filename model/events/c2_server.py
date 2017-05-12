@@ -10,7 +10,6 @@ class C2Server(MISPEvent):
 
     def __init__(self, organisation_name, organisation_uuid, threat_level_id, published, info, date):
         MISPEvent.__init__(self, organisation_name, organisation_uuid, threat_level_id, published, info, date)
-        #self.append_tags(MISPTag("#ffc000", True, "tlp:amber"))
 
 
     """

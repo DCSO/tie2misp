@@ -41,10 +41,8 @@ class Loader:
         index = 0
         while finished:
             try:
-                # myResponse = requests.get(url, headers=authHeader, params=query)
                 print("Querry URL: " + url)
                 myResponse = requests.get(url, headers=conf_authHeader)
-                # print(query)
                 # For successful API call, response code will be 200 (OK)
                 if myResponse.ok:
                     # print(myResponse.status_code)
@@ -54,11 +52,7 @@ class Loader:
                     # (dict or list, depending on JSON)
 
                     try:
-                        # print(myResponse.json())
-                        # jsonResponse = json.loads(myResponse.json())
                         jsonResponse = myResponse.json()
-
-                        # print(jsonResponse)
 
                         for key in jsonResponse:
                             val = jsonResponse[key]
@@ -81,7 +75,6 @@ class Loader:
                                         C2Server.parse(event, val, tags)
                                     elif type == 'malware':
                                         Malware.parse(event, val, tags)
-
 
                     except ValueError:
                         print("Error:")
@@ -117,7 +110,6 @@ class Loader:
             if file:
                 # Serialize event as MISP Event
                 json_output = event.serialize()
-                # print(json_output)
                 outfile = type + "_" + str(event.uuid) + ".json"
                 print(outfile)
                 with open(outfile, "w") as text_file:

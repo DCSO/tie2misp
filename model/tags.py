@@ -77,7 +77,6 @@ class Tags:
                 if item == 'attr_sha256' and isinstance(i, dict):
                     tags.c2tags_attr['attr_sha256'] = i
 
-
         if "malware_attribute_tags" in raw_tags:
             malwaretags = raw_tags["malware_attribute_tags"]
             for item in malwaretags:
