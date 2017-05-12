@@ -17,3 +17,4 @@ events:
 
 attributes:
   to_ids: "False"
+  tagging: "False"

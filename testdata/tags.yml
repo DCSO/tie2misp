@@ -1,0 +1,33 @@
+# If you don't need some tags just remove them or comment them out
+c2_attribute_tags:
+  base_tags: # Base tags will be displayed directly on the given event
+    1: "veris:action:malware:variety=\"C2\""
+    2: "veris:confidence=\"High\""
+    3: "tlp:amber"
+  attr_domainname:
+    #1: "dn1"
+  attr_url_verbatim:
+    #1: "url1"
+    1: "tlp:amber"
+  attr_ipv4:
+    #1: "ip1"
+    #2: "ip2"
+    1: "tlp:amber"
+  #attr_ipv6:
+    #1:
+    #2:
+  attr_md5:
+    1: "tlp:green"
+  #attr_sha1:
+  #attr_sha256:
+malware_attribute_tags:
+  base_tags: # Base tags will be displayed directly on the given event
+    1: "veris:action:malware:variety=\"C2\""
+    2: "veris:confidence=\"High\""
+  attr_hash:
+    #1: "oof"
+    #2: "aab"
+  attr_domainname:
+    #1: "dn1"
+  attr_url_verbatim:
+    #1: "url1"

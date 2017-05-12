@@ -40,5 +40,7 @@ class SHA1(MISPAttribute):
 
         return sha1
 
-    def upload(self, misp, event):
-        misp.add_hashes(event, self.category, None, None, self.value, None, None, self.comment, True, None, False)
+    def upload(self, misp, event, config):
+        attr = misp.add_hashes(event, self.category, None, None, self.value, None, None, self.comment, True, None, False)
+        if config.attr_tagging:
+            self.upload_tags(misp, attr)

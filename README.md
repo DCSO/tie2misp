@@ -8,6 +8,9 @@ Import DCSO TIE IOCs as MISP events
 - TIE API Key http://tie.dcso.de
 - MISP API Key
 
+The MISP user should be able to create events and to tag them. For this we suggest to create a separate role with the 
+permission `Tagger` enabled.  
+
 ## Packages
 - Requests http://python-requests.org
 - PyYAML http://pyyaml.org
@@ -21,13 +24,17 @@ $ pip3 install -r requirements.txt
 ```
 
 ## Configuration
-The command line client expects a configuration file in the `tie2misp/settings` directory where you have to define the
-required API keys and URLs. To create the config file, just copy the `config.sample.yml` file to `config.yml` and edit
-it.
+The command line client expects a configuration and tag file in the `tie2misp/settings` directory where you have to
+define the required API keys and URLs. To create the config and tag file, just copy the `config.sample.yml` and
+`tags.sample.yml` file to `config.yml` and `tags.yml` and edit it.
 
 ```bash
 $ cp settings/config.sample.yml settings/config.yml
+$ cp settings/tags.sample.yml settings/tags.yml
+
 $ vim settings/config.yml
+
+$ vim settings/tags.yml
 ```
 
 # HowTo

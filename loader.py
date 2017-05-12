@@ -3,6 +3,7 @@ DCSO TIE2MISP Parser
 Copyright (c) 2017, DCSO GmbH
 """
 import requests
+from requests import HTTPError, ConnectionError, ConnectTimeout
 from model import Config
 from model.events import C2Server, Malware
 from datetime import datetime, timedelta
@@ -11,7 +12,7 @@ from datetime import datetime, timedelta
 class Loader:
 
     @staticmethod
-    def start(conf, type, startdate, file, noupload):
+    def start(conf, tags, type, startdate, file, noupload):
 
         # Building Auth Header
         conf_authHeader = {'Authorization': 'Bearer ' + conf.tie_api_key}
@@ -23,6 +24,7 @@ class Loader:
         category = None
         finished = True
         event = None
+        connection_error = False
 
         # Eventtype
         if type == 'c2server':
@@ -38,66 +40,78 @@ class Loader:
 
         index = 0
         while finished:
-            # myResponse = requests.get(url, headers=authHeader, params=query)
-            myResponse = requests.get(url, headers=conf_authHeader)
-            # print(query)
-            # For successful API call, response code will be 200 (OK)
-            if myResponse.ok:
-                # print(myResponse.status_code)
-                # Loading the response data into a dict variable
-                # json.loads takes in only binary or string variables so using content to fetch binary content
-                # Loads (Load String) takes a Json file and converts into python data structure
-                # (dict or list, depending on JSON)
+            try:
+                print("Querry URL: " + url)
+                myResponse = requests.get(url, headers=conf_authHeader)
+                # For successful API call, response code will be 200 (OK)
+                if myResponse.ok:
+                    # print(myResponse.status_code)
+                    # Loading the response data into a dict variable
+                    # json.loads takes in only binary or string variables so using content to fetch binary content
+                    # Loads (Load String) takes a Json file and converts into python data structure
+                    # (dict or list, depending on JSON)
 
-                try:
-                    # print(myResponse.json())
-                    # jsonResponse = json.loads(myResponse.json())
-                    jsonResponse = myResponse.json()
+                    try:
+                        jsonResponse = myResponse.json()
 
-                    # print(jsonResponse)
-
-                    for key in jsonResponse:
-                        val = jsonResponse[key]
-                        if "has_more" in key:
-                            index += 1
-                            if val is not True:
-                                # We are done
-                                finished = False
-                                print("#### Finished #####")
-                                break
+                        for key in jsonResponse:
+                            val = jsonResponse[key]
+                            if "has_more" in key:
+                                index += 1
+                                if val is not True:
+                                    # We are done
+                                    finished = False
+                                    print("#### Finished #####")
+                                    break
+                                else:
+                                    if isinstance(myResponse.links, dict):
+                                        res = myResponse.links["next"]
+                                        url = res["url"]
+                                        print("#### Continue #####")
                             else:
-                                if isinstance(myResponse.links, dict):
-                                    res = myResponse.links["next"]
-                                    url = res["url"]
-                                    print("#### Continue #####")
-                        else:
-                            if isinstance(val, list) and "params" not in key:
-                                print("Parsing... - Index: " + str(index))
-                                if type == 'c2server':
-                                    C2Server.parse(event, val)
-                                elif type == 'malware':
-                                    Malware.parse(event, val)
+                                if isinstance(val, list) and "params" not in key:
+                                    print("Parsing... - Index: " + str(index))
+                                    if type == 'c2server':
+                                        C2Server.parse(event, val, tags)
+                                    elif type == 'malware':
+                                        Malware.parse(event, val, tags)
 
-                except ValueError:
-                    print("Error:")
-                    print("Invalid or empty JSON Response")
+                    except ValueError:
+                        print("Error:")
+                        print("Invalid or empty JSON Response")
 
-            else:
-                # If response code is not ok (200), print the resulting http error code with description
-                print("Error: \n")
-                print(myResponse.content)
-                myResponse.raise_for_status()
+                else:
+                    # If response code is not ok (200), print the resulting http error code with description
+                    print("Error: \n")
+                    print(myResponse.content)
+                    myResponse.raise_for_status()
+            except (HTTPError, ConnectionError, ConnectTimeout) as e:
+                print("Error:")
+                print("TIE seems not to be available at the moment or connection is interrupted")
+                connection_error = True
+                finished = False
 
-        if not noupload:
-            # Load things up
-            event.upload(conf)
+        # TIE is available?
+        if not connection_error:
+            # Add Base Tags
+            if isinstance(event, C2Server):
+                if tags.c2tags_base is not None:
+                    for val in tags.c2tags_base:
+                        event.append_tags(tags.c2tags_base[val])
+            elif isinstance(event, Malware):
+                if tags.malwaretags_base is not None:
+                    for val in tags.c2tags_base:
+                        event.append_tags(tags.c2tags_base[val])
 
-        if file:
-            # Serialize event as MISP Event
-            json_output = event.serialize()
-            # print(json_output)
-            outfile = type + "_" + str(event.uuid) + ".json"
-            print(outfile)
-            with open(outfile, "w") as text_file:
-                text_file.write(json_output)
+            if not noupload:
+                # Load things up
+                event.upload(conf)
+
+            if file:
+                # Serialize event as MISP Event
+                json_output = event.serialize()
+                outfile = type + "_" + str(event.uuid) + ".json"
+                print(outfile)
+                with open(outfile, "w") as text_file:
+                    text_file.write(json_output)
 

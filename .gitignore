@@ -97,3 +97,4 @@ ENV/
 
 #DSStatus
 .DS_Store
+/settings/tags.yml

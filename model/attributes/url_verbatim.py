@@ -23,9 +23,6 @@ class URLVerbatim(MISPAttribute):
         json_object['type'] = 'url'
 
         return json_object
-        # return {'category': 'Network activity', 'comment': self.data_type + ' - Confidence: ' +
-        #        self.confidence, 'uuid': self.id, 'timestamp': dt.strftime("%s"), 'to_ids': 'true',
-        #        'value': self.value, 'type': 'ip-dst'}
 
     @staticmethod
     def parse(item):
@@ -38,5 +35,7 @@ class URLVerbatim(MISPAttribute):
         url.confidence = item["max_confidence"]
         return url
 
-    def upload(self, misp, event):
-        misp.add_url(event, self.value, self.category, True, self.comment, None, False)
+    def upload(self, misp, event, config):
+        attr = misp.add_url(event, self.value, self.category, True, self.comment, None, False)
+        if config.attr_tagging:
+            self.upload_tags(misp, attr)

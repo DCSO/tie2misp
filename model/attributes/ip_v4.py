@@ -23,9 +23,6 @@ class IPv4(MISPAttribute):
         json_object['type'] = 'ip-dst'
 
         return json_object
-        # return {'category': 'Network activity', 'comment': self.data_type + ' - Confidence: ' +
-        #        self.confidence, 'uuid': self.id, 'timestamp': dt.strftime("%s"), 'to_ids': 'true',
-        #        'value': self.value, 'type': 'ip-dst'}
 
     @staticmethod
     def parse(item):
@@ -43,5 +40,7 @@ class IPv4(MISPAttribute):
 
         return ipv4
 
-    def upload(self, misp, event):
-        misp.add_ipdst(event, self.value, self.category, True, self.comment, None, False)
+    def upload(self, misp, event, config):
+        attr = misp.add_ipdst(event, self.value, self.category, True, self.comment, None, False)
+        if config.attr_tagging:
+            self.upload_tags(misp, attr)
