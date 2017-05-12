@@ -65,7 +65,6 @@ class C2Server(MISPEvent):
 
                 if attr is not None:
                     # finally append attribute to event
-
                     misp_event.append_attribute(attr)
                 else:
                     raise ValueError("C2Server events only supports attributes with type IPv4, IPv6, DomainName," +
