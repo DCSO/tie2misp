@@ -40,6 +40,7 @@ class MD5(MISPAttribute):
 
         return md5
 
-    def upload(self, misp, event):
+    def upload(self, misp, event, config):
         attr = misp.add_hashes(event, self.category, None, self.value, None, None, None, self.comment, True, None, False)
-        self.upload_tags(misp, attr)
+        if config.attr_tagging:
+            self.upload_tags(misp, attr)

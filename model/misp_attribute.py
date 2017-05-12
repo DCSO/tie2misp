@@ -107,7 +107,7 @@ class MISPAttribute(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def upload(self, misp, event):
+    def upload(self, misp, event, config):
         pass
 
     # Tag handling
@@ -143,3 +143,12 @@ class MISPAttribute(metaclass=ABCMeta):
         if len(self.tags) > 0 and uuid is not None:
             for tag in self.tags:
                 misp.tag(uuid, tag)
+
+    @staticmethod
+    def add_attribute_tag(attribute, tags, pattern):
+        if len(tags) > 0:
+            if pattern in tags:
+                for val in tags[pattern]:
+                    tag = tags[pattern][val]
+                    attribute.append_tags(tag)
+        return attribute

@@ -38,6 +38,7 @@ class URLVerbatim(MISPAttribute):
         url.confidence = item["max_confidence"]
         return url
 
-    def upload(self, misp, event):
+    def upload(self, misp, event, config):
         attr = misp.add_url(event, self.value, self.category, True, self.comment, None, False)
-        self.upload_tags(misp, attr)
+        if config.attr_tagging:
+            self.upload_tags(misp, attr)

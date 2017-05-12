@@ -150,7 +150,7 @@ class MISPEvent(metaclass=ABCMeta):
         for attr in self.attributes:
             if index % 10 == 0 or index == length:
                 print('Attribute: ' + str(index) + ' from ' + str(length))
-            attr.upload(misp, event)
+            attr.upload(misp, event, config)
             index += 1
 
 

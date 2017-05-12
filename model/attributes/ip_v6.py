@@ -39,7 +39,8 @@ class IPv6(MISPAttribute):
         ipv6.confidence = item["max_confidence"]
         return ipv6
 
-    def upload(self, misp, event):
+    def upload(self, misp, event, config):
         attr = misp.add_ipdst(event, self.value, self.category, True, self.comment, None, False)
-        self.upload_tags(misp, attr)
+        if config.attr_tagging:
+            self.upload_tags(misp, attr)
 

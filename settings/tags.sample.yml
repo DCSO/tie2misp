@@ -13,6 +13,9 @@ c2_attribute_tags:
   #ipv6:
     #1:
     #2:
+  #attr_md5:
+  #attr_sha1:
+  #attr_sha256:
 malware_attribute_tags:
   hash:
     1: "oof"

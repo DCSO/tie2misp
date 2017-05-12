@@ -70,6 +70,12 @@ class Tags:
                     tags.c2tags_attr['attr_ipv4'] = i
                 if item == 'attr_ipv6' and isinstance(i, dict):
                     tags.c2tags_attr['attr_ipv6'] = i
+                if item == 'attr_md5' and isinstance(i, dict):
+                    tags.c2tags_attr['attr_md5'] = i
+                if item == 'attr_sha1' and isinstance(i, dict):
+                    tags.c2tags_attr['attr_sha1'] = i
+                if item == 'attr_sha256' and isinstance(i, dict):
+                    tags.c2tags_attr['attr_sha256'] = i
 
 
         if "malware_attribute_tags" in raw_tags:

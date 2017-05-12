@@ -38,6 +38,7 @@ class DomainName(MISPAttribute):
         dn.confidence = item["max_confidence"]
         return dn
 
-    def upload(self, misp, event):
+    def upload(self, misp, event, config):
         attr = misp.add_domain(event, self.value, self.category, True, self.comment, None, False)
-        self.upload_tags(misp, attr)
+        if config.attr_tagging:
+            self.upload_tags(misp, attr)

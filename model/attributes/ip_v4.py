@@ -43,6 +43,7 @@ class IPv4(MISPAttribute):
 
         return ipv4
 
-    def upload(self, misp, event):
+    def upload(self, misp, event, config):
         attr = misp.add_ipdst(event, self.value, self.category, True, self.comment, None, False)
-        self.upload_tags(misp, attr)
+        if config.attr_tagging:
+            self.upload_tags(misp, attr)
