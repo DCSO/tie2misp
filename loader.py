@@ -7,6 +7,8 @@ from requests import HTTPError, ConnectionError, ConnectTimeout
 from model import Config
 from model.events import C2Server, Malware
 from datetime import datetime, timedelta
+import logging
+import sys
 
 
 class Loader:
@@ -41,7 +43,7 @@ class Loader:
         index = 0
         while finished:
             try:
-                print("Querry URL: " + url)
+                logging.info("Querry URL: " + url)
                 myResponse = requests.get(url, headers=conf_authHeader)
                 # For successful API call, response code will be 200 (OK)
                 if myResponse.ok:
@@ -61,33 +63,32 @@ class Loader:
                                 if val is not True:
                                     # We are done
                                     finished = False
-                                    print("#### Finished #####")
+                                    logging.info("#### Finished #####")
                                     break
                                 else:
                                     if isinstance(myResponse.links, dict):
                                         res = myResponse.links["next"]
                                         url = res["url"]
-                                        print("#### Continue #####")
+                                        logging.info("#### Continue #####")
                             else:
                                 if isinstance(val, list) and "params" not in key:
-                                    print("Parsing... - Index: " + str(index))
+                                    logging.info("Parsing... - Index: " + str(index))
                                     if type == 'c2server':
                                         C2Server.parse(event, val, tags)
                                     elif type == 'malware':
                                         Malware.parse(event, val, tags)
 
                     except ValueError:
-                        print("Error:")
-                        print("Invalid or empty JSON Response")
+                        logging.error("Error:\nInvalid or empty JSON Response")
 
                 else:
                     # If response code is not ok (200), print the resulting http error code with description
-                    print("Error: \n")
-                    print(myResponse.content)
+                    logging.error("Error:")
+                    logging.error(myResponse.content)
                     myResponse.raise_for_status()
             except (HTTPError, ConnectionError, ConnectTimeout) as e:
-                print("Error:")
-                print("TIE seems not to be available at the moment or connection is interrupted")
+                logging.error("Error:")
+                logging.error("TIE seems not to be available at the moment or connection is interrupted")
                 connection_error = True
                 finished = False
 
@@ -111,7 +112,43 @@ class Loader:
                 # Serialize event as MISP Event
                 json_output = event.serialize()
                 outfile = type + "_" + str(event.uuid) + ".json"
-                print(outfile)
+                logging.info(outfile)
                 with open(outfile, "w") as text_file:
                     text_file.write(json_output)
+
+    @staticmethod
+    def init_logger(logPath, fileName, logLvl, consoleLog, fileLog):
+        '''
+        logging.getLogger().addHandler(logging.StreamHandler())
+        logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
+        rootLogger = logging.getLogger()
+        rootLogger.setLevel(logLvl)
+    
+        fileHandler = logging.FileHandler("{0}/{1}.log".format(logPath, fileName))
+        fileHandler.setFormatter(logFormatter)
+        rootLogger.addHandler(fileHandler)
+    
+        consoleHandler = logging.StreamHandler()
+        consoleHandler.setFormatter(logFormatter)
+        rootLogger.addHandler(consoleHandler)
+        '''
+
+        root = logging.getLogger()
+        root.setLevel(logLvl)
+        formatter = logging.Formatter('%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s')
+
+        consoleHandler = logging.StreamHandler(sys.stdout)
+
+        consoleHandler.setFormatter(formatter)
+        root.addHandler(consoleHandler)
+
+        if consoleLog is False:
+            consoleHandler.setLevel(logLvl)
+        else:
+            consoleHandler.setLevel(100)
+
+        if fileLog is False:
+            fileHandler = logging.FileHandler("{0}/{1}.log".format(logPath, fileName))
+            fileHandler.setFormatter(formatter)
+            root.addHandler(fileHandler)
 

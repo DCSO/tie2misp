@@ -3,7 +3,7 @@ DCSO TIE2MISP Parser
 Copyright (c) 2017, DCSO GmbH
 """
 import yaml
-import warnings
+import logging
 
 
 class Config:
@@ -23,6 +23,7 @@ class Config:
         self.__Attr_Tagging = False
         self.__URL_Categories = ""
         self.__URL_IOCs = ""
+        self.__Log_Lvl = 40
 
     # --- Getter
     @property
@@ -84,6 +85,10 @@ class Config:
     @property
     def misp_verify_cert(self):
         return self.__MISP_VerifyCert
+
+    @property
+    def log_lvl(self):
+        return self.__Log_Lvl
 
     # --- Setter
 
@@ -147,6 +152,10 @@ class Config:
     def misp_verify_cert(self, value):
         self.__MISP_VerifyCert = value
 
+    @log_lvl.setter
+    def log_lvl(self, value):
+        self.__Log_Lvl = value
+
     @staticmethod
     def parse(configfile):
         conf = Config()
@@ -160,6 +169,7 @@ class Config:
         conf.tie_api_url = configs["base"]["tie_apikey"]
         conf.misp_api_url = configs["base"]["misp_apiurl"]
         conf.misp_api_key = configs["base"]["misp_apikey"]
+        conf.log_lvl = configs["base"]["log_lvl"]
         conf.org_name = configs["organisation"]["name"]
         conf.org_uuid = configs["organisation"]["uuid"]
         conf.event_base_thread_level = configs["events"]["base_threat_level"]
@@ -184,28 +194,36 @@ class Config:
             raise RuntimeError("No TIE URL found. An URL is mandatory to start tie2misp")
 
         # Optional fields
+        if self.log_lvl is None or not isinstance(self.log_lvl, int):
+            if self.log_lvl < 0 or self.log_lvl > 50:
+                logging.warning("False log level defined - log level should equal or between 0 and 50 - setting log level to default value")
+            else:
+                logging.warning("False log level defined - log level should be an integer value equal or between 0 and 50 - setting log level to default value")
+
+            self.log_lvl = 20
+
         if self.misp_api_key is None or self.misp_api_key == "":
-            warnings.warn("No MISP API key found. TIE2MISP will only work with --file flag", category=RuntimeWarning)
+            logging.warning("No MISP API key found. TIE2MISP will only work with --file flag")
         if self.misp_api_url is None or self.misp_api_url == "":
-            warnings.warn("No MISP URL found. TIE2MISP will only work with --file flag", category=RuntimeWarning)
+            logging.warning("No MISP URL found. TIE2MISP will only work with --file flag")
         if self.org_name is None or self.org_name == "":
-            warnings.warn("No organisation name is defined. MISP require a organisation name to work properly", category=RuntimeWarning)
+            logging.warning("No organisation name is defined. MISP require a organisation name to work properly")
         if self.org_uuid is None or len(self.org_uuid) <= 10:
-            warnings.warn("No organisation UUID is set or UUID is to short. MISP require a organisation UUID to work properly", category=RuntimeWarning)
+            logging.warning("No organisation UUID is set or UUID is to short. MISP require a organisation UUID to work properly")
         if self.event_base_thread_level is None or self.event_base_thread_level == "":
-            warnings.warn("No base thread level is set. Its recommended to set a proper base threat level. Threat level is set to 3.", category=RuntimeWarning)
+            logging.warning("No base thread level is set. Its recommended to set a proper base threat level. Threat level is set to 3.")
             self.event_base_thread_level = "3"
         if self.event_published is None or self.event_published == "":
-            warnings.warn("No publishing parameter ist set. Its recommended to set a proper publishing parameter. Publishing is set to False", category=RuntimeWarning)
+            logging.warning("No publishing parameter ist set. Its recommended to set a proper publishing parameter. Publishing is set to False")
             self.event_published = "False"
         if self.event_info_c2server is None or self.event_info_c2server == "":
-            warnings.warn("No C2 Server info lable is set. Its recommended to set a proper C2 server info. Set default name.", category=RuntimeWarning)
+            logging.warning("No C2 Server info lable is set. Its recommended to set a proper C2 server info. Set default name.")
             self.event_info_c2server = "TIE Daily C2Server"
         if self.event_info_malware is None or self.event_info_malware == "":
-            warnings.warn("No C2 Server info lable is set. Its recommended to set a proper C2 server info. Set default name.", category=RuntimeWarning)
+            logging.warning("No C2 Server info lable is set. Its recommended to set a proper C2 server info. Set default name.")
             self.__Event_Info_Malware = "TIE Daily Malware"
         if self.attr_tagging is None or self.attr_tagging == "":
-            warnings.warn("No option to tag attributes found. Its recommended to define it with True or False", category=RuntimeWarning)
+            logging.warning("No option to tag attributes found. Its recommended to define it with True or False")
             self.attr_tagging = False
 
 

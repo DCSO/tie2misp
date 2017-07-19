@@ -4,6 +4,7 @@ Copyright (c) 2017, DCSO GmbH
 """
 from model.attributes import IPv4, DomainName, URLVerbatim, MD5, SHA1, SHA256
 from model.misp_event import MISPEvent, MISPAttribute
+import logging
 
 
 class C2Server(MISPEvent):
@@ -27,7 +28,7 @@ class C2Server(MISPEvent):
                         attr = IPv4.parse(item)
                         MISPAttribute.add_attribute_tag(attr, tags.c2tags_attr, 'attr_ipv4')
                     except ValueError:
-                        print("Error parsing TIE IOC(IPv4)")
+                        logging.error("Error parsing TIE IOC(IPv4)")
                 elif item["data_type"] == "IPv6":
                     # Not implemented yet
                     pass
@@ -36,13 +37,13 @@ class C2Server(MISPEvent):
                         attr = DomainName.parse(item)
                         MISPAttribute.add_attribute_tag(attr, tags.c2tags_attr, 'attr_domainname')
                     except ValueError:
-                        print("Error parsing TIE IOC(DomainName)")
+                        logging.error("Error parsing TIE IOC(DomainName)")
                 elif item["data_type"] == "URLVerbatim":
                     try:
                         attr = URLVerbatim.parse(item)
                         MISPAttribute.add_attribute_tag(attr, tags.c2tags_attr, 'attr_url_verbatim')
                     except ValueError:
-                        print("Error parsing TIE IOC(URLVerbatim)")
+                        logging.error("Error parsing TIE IOC(URLVerbatim)")
                 elif item["data_type"] == 'ExactHash':
                     try:
                         value = ""
@@ -60,7 +61,7 @@ class C2Server(MISPEvent):
                             raise ValueError('Error parsing ExactHash - Value must be from type md5,sha1 or sha256')
 
                     except ValueError:
-                        print("Error parsing TIE IOC(ExactHash)")
+                        logging.error("Error parsing TIE IOC(ExactHash)")
 
                 if attr is not None:
                     # finally append attribute to event
@@ -70,7 +71,7 @@ class C2Server(MISPEvent):
                                      "URLVerbatim")
                 # Print Index
                 if index % 10 == 0 or index == length:
-                    print('Attribute: ' + str(index) + ' from ' + str(length))
+                    logging.info('Attribute: ' + str(index) + ' from ' + str(length))
                 index += 1
         else:
             raise ValueError("Given event must be a C2Server event")

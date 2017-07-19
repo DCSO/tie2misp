@@ -10,6 +10,8 @@ from datetime import datetime, timedelta
 from model import Config
 from model import Tags
 from loader import Loader
+import logging
+import sys
 
 
 @click.command()
@@ -24,15 +26,21 @@ from loader import Loader
                                                'file.')
 @click.option('--date', help='If a date is set, instead of using the actual date the parser will use the '
                              'given date. The date must be given in the following format YYYY-MM-DD.')
-def startup(type, delay, file, noupload, date):
-    error = False
-    given_date = ''
+@click.option('--loglvl', help='Sets the log level. If used, the log level defined in the config.yml '
+                                             'will be ignored')
+@click.option('--disable_console_log', is_flag=True, help='If used, the parse will not generate output in the console')
+@click.option('--disable_file_log', is_flag=True, help='If used, the parse will not generate output in the console')
+def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disable_file_log):
     """
     Starting the Parser with a given type of events that should be created.
 
     Choseable types:
     c2server, malware, actors
     """
+    error = False
+    given_date = ''
+    loglvl_set = False
+
     if type == 'c2server':
         pass
     elif type == 'malware':
@@ -59,21 +67,33 @@ def startup(type, delay, file, noupload, date):
         click.echo('Delay must be an unsigned integer value')
         error = True
 
+    if isinstance(loglvl, int):
+        if loglvl < 0 or loglvl > 50:
+            click.echo('Log level must be an unsigned integer value equal or between 0 and 50')
+        else:
+            loglvl_set = True
+
     if not error:
         # Loading config file
         try:
             conf = Config.parse("settings/config.yml")
             tags = Tags.parse("settings/tags.yml")
+
+            # Log level was set
+            if loglvl_set:
+                conf.log_lvl = loglvl
+
+            # Configure Logging
+            Loader.init_logger(sys.path[0], "tie2misp", conf.log_lvl, disable_console_log, disable_file_log)
             # calculate start date
+            logging.info("#### Start new TIE-Querry: " + type + " ####")
             if given_date != '':
                 Loader.start(conf, tags, type, given_date, file, noupload)
             else:
                 dt = datetime.now() - timedelta(days=delay)
                 Loader.start(conf, tags, type, dt, file, noupload)
         except FileNotFoundError:
-            print("Error:")
-            print("config.yml and/or tags.yml not found")
-
+            logging.error("Error: \nconfig.yml and/or tags.yml not found")
 
 if __name__ == '__main__':
     startup()
