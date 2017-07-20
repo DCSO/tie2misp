@@ -24,6 +24,8 @@ class Config:
         self.__URL_Categories = ""
         self.__URL_IOCs = ""
         self.__Log_Lvl = 40
+        self.__Base_Confidence = 60
+        self.__Base_Severity = 3
 
     # --- Getter
     @property
@@ -90,15 +92,23 @@ class Config:
     def log_lvl(self):
         return self.__Log_Lvl
 
+    @property
+    def base_confidence(self):
+        return self.__Base_Confidence
+
+    @property
+    def base_severity(self):
+        return self.__Base_Severity
+
     # --- Setter
 
     @tie_api_url.setter
     def tie_api_url(self, value):
-        self.__TIE_ApiKey = value
+        self.__TIE_ApiUrl = value
 
     @tie_api_key.setter
     def tie_api_key(self, value):
-        self.__TIE_ApiUrl = value
+        self.__TIE_ApiKey = value
 
     @org_name.setter
     def org_name(self, value):
@@ -156,33 +166,79 @@ class Config:
     def log_lvl(self, value):
         self.__Log_Lvl = value
 
+    @base_confidence.setter
+    def base_confidence(self, value):
+        self.__Base_Confidence = value
+
+    @base_severity.setter
+    def base_severity(self, value):
+        self.__Base_Severity = value
+
     @staticmethod
     def parse(configfile):
         conf = Config()
+        configs = None
+        ERROR_BASE_STR = "Error parsing config.yml: "
 
-        # Load Config
-        config_file = open(configfile, "r", encoding="utf-8")
-        configs = yaml.load(config_file)
+        try:
+            # Load Config
+            config_file = open(configfile, "r", encoding="utf-8")
+            configs = yaml.load(config_file)
+        except:
+            Config.raise_error_critical("Config file could not found. Please create a config file!")
 
         # Config Values
-        conf.tie_api_key = configs["base"]["tie_apiurl"]
-        conf.tie_api_url = configs["base"]["tie_apikey"]
-        conf.misp_api_url = configs["base"]["misp_apiurl"]
-        conf.misp_api_key = configs["base"]["misp_apikey"]
-        conf.log_lvl = configs["base"]["log_lvl"]
-        conf.org_name = configs["organisation"]["name"]
-        conf.org_uuid = configs["organisation"]["uuid"]
-        conf.event_base_thread_level = configs["events"]["base_threat_level"]
-        conf.event_published = configs["events"]["published"]
-        conf.event_info_c2server = configs["events"]["info_c2server"]
-        conf.event_info_malware = configs["events"]["info_malware"]
-        conf.attr_to_ids = configs["attributes"]["to_ids"]
-        conf.attr_tagging = configs["attributes"]["tagging"]
+        # Parsing Base Values
+        if "base" in configs:
+            base_vals = configs["base"]
+            # Critical Values
+            conf.tie_api_url = Config.get_config_value_critical(base_vals, "tie_apiurl")
+            conf.tie_api_key = Config.get_config_value_critical(base_vals, "tie_apikey")
+
+            # Optional Values
+            conf.misp_api_url = Config.get_config_value_optional(base_vals, "misp_apiurl", None)
+            conf.misp_api_key = Config.get_config_value_optional(base_vals, "misp_apikey", None)
+            conf.base_severity = Config.get_config_value_optional(base_vals, "base_severity", 1)
+            conf.base_confidence = Config.get_config_value_optional(base_vals, "base_confidence", 60)
+            conf.log_lvl = Config.get_config_value_optional(base_vals, "log_lvl", 20)
+
+            # Addtional Checks
+            conf.log_lvl = Config.check_integer(conf.log_lvl, 20, 0, 50)
+            conf.base_confidence = Config.check_integer(conf.base_confidence, 60, 0, 100)
+            conf.base_severity = Config.check_integer(conf.base_severity, 1, 0, 5)
+        else:
+            Config.raise_error_critical("Could not found base values")
+
+        # Parsing Organisation Values
+        if "organisation" in configs:
+            organisation_vals = configs["organisation"]
+            # Optional Values
+            conf.org_name = Config.get_config_value_optional(organisation_vals, "name", None)
+            conf.org_uuid = Config.get_config_value_optional(organisation_vals, "uuid", None)
+        else:
+            Config.raise_error_critical("Could not found organisation values")
+
+        # Parsing Event Values
+        if "events" in configs:
+            event_vals = configs["events"]
+            # Optional Values
+            conf.event_base_thread_level = Config.get_config_value_optional(event_vals, "base_threat_level", 3)
+            conf.event_published = Config.get_config_value_optional(event_vals, "published", "False")
+            conf.event_info_c2server = Config.get_config_value_optional(event_vals, "info_c2server", "TIE Daily C2Server")
+            conf.event_info_malware = Config.get_config_value_optional(event_vals, "info_malware", "TIE Daily Malware")
+        else:
+            Config.raise_error_critical("Could not found event values")
+
+        # Parsing Attribute Values
+        if "attributes" in configs:
+            attr_vals = configs["attributes"]
+            conf.attr_to_ids = Config.get_config_value_optional(attr_vals, "to_ids", "True")
+            conf.attr_tagging = Config.get_config_value_optional(attr_vals, "tagging", "True")
+        else:
+            Config.raise_error_critical("Could not found attributes values ")
 
         conf.url_categories = "categories"
         conf.url_iocs = "iocs"
-
-        conf.value_check()
 
         return conf
 
@@ -225,5 +281,65 @@ class Config:
         if self.attr_tagging is None or self.attr_tagging == "":
             logging.warning("No option to tag attributes found. Its recommended to define it with True or False")
             self.attr_tagging = False
+
+    @staticmethod
+    def raise_error_critical(error_str):
+        ERROR_BASE_STR = "Error parsing config.yml: "
+        logging.error(ERROR_BASE_STR + error_str)
+        raise RuntimeError(ERROR_BASE_STR + error_str)
+
+    @staticmethod
+    def raise_error_warning(error_str):
+        ERROR_BASE_STR = "Warning parsing config.yml: "
+        logging.warning(ERROR_BASE_STR + error_str)
+
+    @staticmethod
+    def get_config_value_critical(val_dict, key):
+        if key in val_dict:
+            val = val_dict[key]
+            if val is None or val == "":
+                Config.raise_error_critical("Value for Key: " + key + " - could not found or is empty. A proper key and value is mandatory to start tie2misp")
+            else:
+                return val
+        else:
+            Config.raise_error_critical("Key: " + key + " - could not found. A proper key and value is mandatory to start tie2misp")
+
+    @staticmethod
+    def get_config_value_optional(val_dict, key, default_val=None):
+        if key in val_dict:
+            val = val_dict[key]
+            if val is None or val == "":
+                if default_val is None:
+                    Config.raise_error_warning("Key: " + key + " - could not been found or value is empty. A proper key and value is strongly recommended")
+                    val = None
+                else:
+                    Config.raise_error_warning("Key: " + key + " - could not been found or value is empty. Using the default value - " + str(default_val))
+                    val = default_val
+
+
+
+    @staticmethod
+    def check_integer(val, default_value, boundary_left=None, boundary_right=None):
+        error = False
+        if val is None or not isinstance(val, int):
+            error = True
+        else:
+            if boundary_left is not None:
+                if val < boundary_left:
+                    error = True
+
+            if boundary_right is not None:
+                if val > boundary_right:
+                    error = True
+
+        if error:
+            logging.warning("Value is not correct or not an integer value - using the default value.")
+            val = default_value
+
+        return val
+
+
+
+
 
 
