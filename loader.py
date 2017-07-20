@@ -41,6 +41,7 @@ class Loader:
         url = conf.tie_api_url + conf.url_iocs + "?category=" + category + "&created_since=" + date_since + '&created_until=' + date_until
 
         index = 0
+        connection_retrys = 1
         while finished:
             try:
                 logging.info("Querry URL: " + url)
@@ -56,30 +57,43 @@ class Loader:
                     try:
                         jsonResponse = myResponse.json()
 
-                        for key in jsonResponse:
-                            val = jsonResponse[key]
-                            if "has_more" in key:
-                                index += 1
-                                if val is not True:
-                                    # We are done
-                                    finished = False
-                                    logging.info("#### Finished #####")
-                                    break
-                                else:
-                                    if isinstance(myResponse.links, dict):
-                                        res = myResponse.links["next"]
-                                        url = res["url"]
-                                        logging.info("#### Continue #####")
+                        # Check if there are more values
+                        if 'has_more' in jsonResponse:
+                            val = jsonResponse['has_more']
+                            if val is not True:
+                                finished = False
+                                logging.info("There are no more attributes")
+                                logging.info("#### Finished #####")
+                                break
                             else:
-                                if isinstance(val, list) and "params" not in key:
-                                    logging.info("Parsing... - Index: " + str(index))
-                                    if type == 'c2server':
-                                        C2Server.parse(event, val, tags)
-                                    elif type == 'malware':
-                                        Malware.parse(event, val, tags)
+                                if isinstance(myResponse.links, dict):
+                                    res = myResponse.links["next"]
+                                    url = res["url"]
+                                    logging.info("#### Continue #####")
+                        if 'iocs' in jsonResponse:
+                            val = jsonResponse['iocs']
+                            logging.info("Parsing... - Offset: " + str(index) + " to " + str(index + len(val)))
+                            index += len(val)
+
+                            if type == 'c2server':
+                                C2Server.parse(event, val, tags)
+                            elif type == 'malware':
+                                Malware.parse(event, val, tags)
+                        else:
+                            logging.warning("TIE answered with an empty reply")
 
                     except ValueError:
                         logging.error("Error:\nInvalid or empty JSON Response")
+                elif myResponse.status_code >= 500 and myResponse.status_code <= 550:
+                    logging.warning("It seems there are connection issues with TIE at the moment")
+                    logging.warning("Status-Code: " + str(myResponse.status_code) + " - Try: " + connection_retrys + " from 5")
+
+                    connection_retrys += 1
+                    if connection_retrys < 6:
+                        continue
+                    else:
+                        logging.error("TIE seems not to be available at the moment or connection is interrupted")
+                        raise ConnectionError
 
                 else:
                     # If response code is not ok (200), print the resulting http error code with description
@@ -118,20 +132,6 @@ class Loader:
 
     @staticmethod
     def init_logger(logPath, fileName, logLvl, consoleLog, fileLog):
-        '''
-        logging.getLogger().addHandler(logging.StreamHandler())
-        logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
-        rootLogger = logging.getLogger()
-        rootLogger.setLevel(logLvl)
-    
-        fileHandler = logging.FileHandler("{0}/{1}.log".format(logPath, fileName))
-        fileHandler.setFormatter(logFormatter)
-        rootLogger.addHandler(fileHandler)
-    
-        consoleHandler = logging.StreamHandler()
-        consoleHandler.setFormatter(logFormatter)
-        rootLogger.addHandler(consoleHandler)
-        '''
 
         root = logging.getLogger()
         root.setLevel(logLvl)
