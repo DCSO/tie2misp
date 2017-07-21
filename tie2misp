@@ -29,16 +29,28 @@ import sys
 @click.option('--loglvl', default=20, help='Sets the log level. Default is 20.\n Params are: 0 - NOTSET / 10 - DEBUG / '
                                            '20 - INFO / 30 - WARNING / 40 - ERROR / 50 - CRITICAL')
 @click.option('--disable_console_log', is_flag=True, help='If used, the parse will not generate output in the console')
-@click.option('--disable_file_log', is_flag=True, help='If used, the parse will not generate output in the console')
-def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disable_file_log):
+@click.option('--disable_file_log', is_flag=True, help='If used, the parser will not generate output in the console')
+@click.option('--severity', type=int, help='Events with a severity value lower than the given value will not be parsed. If used, '
+                                 'the parser will ignore the severity value defined in the config file. The severity '
+                                 'value can be equal or between 0 and 5.')
+@click.option('--confidence', type=int, help='Events with a confidence value lower than the given value will not be parsed. If '
+                                   'used, the parser will ignore the severity value defined in the config file. The '
+                                   'confidence value can be equal or between 0 and 100')
+def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disable_file_log, severity, confidence):
     """
     Starting the Parser with a given type of events that should be created.
 
     Choseable types:
     c2server, malware, actors
     """
+    error = False
+    given_date = ''
+    loglvl_set = False
+    confidence_set = False
+    severity_set = False
 
-    #check log
+
+    #check loglvl
     if isinstance(loglvl, int):
         if loglvl < 0 or loglvl > 50:
             click.echo(
@@ -46,14 +58,10 @@ def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disa
                 ' more information\'s.\nSet default value: 20')
             loglvl = 20
     else:
-        click.echo('loglvl must be an integer value equal or between 0 and 50. Type \'python tie2misp.py --help\' for'
-                    ' more information\'s.\nSet default value: 20' )
+        click.echo('loglvl must be an unsigned integer value equal or between 0 and 50. Type \'python tie2misp.py '
+                   '--help\' for more information\'s.\nSet default value: 20' )
         loglvl = 20
-
     Loader.init_logger(sys.path[0], "tie2misp", loglvl, disable_console_log, disable_file_log)
-    error = False
-    given_date = ''
-    loglvl_set = False
 
     if type == 'c2server':
         pass
@@ -81,26 +89,43 @@ def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disa
         click.echo('Delay must be an unsigned integer value')
         error = True
 
-    if isinstance(loglvl, int):
-        if loglvl < 0 or loglvl > 50:
-            click.echo('Log level must be an unsigned integer value equal or between 0 and 50')
+    # Check confidence
+    if confidence is not None:
+        if isinstance(confidence, int):
+            if confidence < 0 or confidence > 100:
+                error = True
+                click.echo('The confidence value must be an unsigned integer value equal or between 0 and 100')
+            else:
+                confidence_set = True
         else:
-            loglvl_set = True
+            error = True
+            click.echo('The confidence value must be an unsigned integer value')
+
+    # Check severity
+    if severity is not None:
+        if isinstance(severity, int):
+            if severity < 0 or severity > 5:
+                error = True
+                click.echo('The severity value must be an unsigned integer value equal or between 0 and 5')
+            else:
+                severity_set = True
+        else:
+            error = True
+            click.echo('The severity value must be an unsigned integer value')
+
 
     if not error:
         # Loading config file
         try:
             conf = Config.parse("settings/config.yml")
             tags = Tags.parse("settings/tags.yml")
-            # Configure Logging
 
+            if severity_set:
+                conf.base_severity = severity
 
-            # Log level was set
-            if loglvl_set:
-                conf.log_lvl = loglvl
+            if confidence_set:
+                conf.base_severity = confidence
 
-            # Configure Logging
-            #Loader.init_logger(sys.path[0], "tie2misp", conf.log_lvl, disable_console_log, disable_file_log)
             # calculate start date
             logging.info("#### Start new TIE-Querry: " + type + " ####")
             if given_date != '':

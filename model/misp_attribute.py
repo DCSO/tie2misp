@@ -133,11 +133,11 @@ class MISPAttribute(metaclass=ABCMeta):
 
         # Get Attribute UUID
         uuid = None
-        attr_list = event['Event']['Attribute']
+        attr_list = event['Attribute']
         if len(attr_list) > 0:
-            for attr in attr_list:
-                if self.value in attr['value']:
-                    uuid = attr['uuid']
+            # for attr in attr_list:
+                if self.value in attr_list['value']:
+                    uuid = attr_list['uuid']
 
         # Upload all given attribute tags
         if len(self.tags) > 0 and uuid is not None:
