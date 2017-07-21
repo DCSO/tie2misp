@@ -26,8 +26,8 @@ import sys
                                                'file.')
 @click.option('--date', help='If a date is set, instead of using the actual date the parser will use the '
                              'given date. The date must be given in the following format YYYY-MM-DD.')
-@click.option('--loglvl', help='Sets the log level. If used, the log level defined in the config.yml '
-                                             'will be ignored')
+@click.option('--loglvl', default=20, help='Sets the log level. Default is 20.\n Params are: 0 - NOTSET / 10 - DEBUG / '
+                                           '20 - INFO / 30 - WARNING / 40 - ERROR / 50 - CRITICAL')
 @click.option('--disable_console_log', is_flag=True, help='If used, the parse will not generate output in the console')
 @click.option('--disable_file_log', is_flag=True, help='If used, the parse will not generate output in the console')
 def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disable_file_log):
@@ -37,6 +37,20 @@ def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disa
     Choseable types:
     c2server, malware, actors
     """
+
+    #check log
+    if isinstance(loglvl, int):
+        if loglvl < 0 or loglvl > 50:
+            click.echo(
+                'loglvl must be equal or between 0 and 50. Type \'python tie2misp.py --help\' for'
+                ' more information\'s.\nSet default value: 20')
+            loglvl = 20
+    else:
+        click.echo('loglvl must be an integer value equal or between 0 and 50. Type \'python tie2misp.py --help\' for'
+                    ' more information\'s.\nSet default value: 20' )
+        loglvl = 20
+
+    Loader.init_logger(sys.path[0], "tie2misp", loglvl, disable_console_log, disable_file_log)
     error = False
     given_date = ''
     loglvl_set = False
@@ -78,13 +92,15 @@ def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disa
         try:
             conf = Config.parse("settings/config.yml")
             tags = Tags.parse("settings/tags.yml")
+            # Configure Logging
+
 
             # Log level was set
             if loglvl_set:
                 conf.log_lvl = loglvl
 
             # Configure Logging
-            Loader.init_logger(sys.path[0], "tie2misp", conf.log_lvl, disable_console_log, disable_file_log)
+            #Loader.init_logger(sys.path[0], "tie2misp", conf.log_lvl, disable_console_log, disable_file_log)
             # calculate start date
             logging.info("#### Start new TIE-Querry: " + type + " ####")
             if given_date != '':

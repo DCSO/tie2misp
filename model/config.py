@@ -200,10 +200,10 @@ class Config:
             conf.misp_api_key = Config.get_config_value_optional(base_vals, "misp_apikey", None)
             conf.base_severity = Config.get_config_value_optional(base_vals, "base_severity", 1)
             conf.base_confidence = Config.get_config_value_optional(base_vals, "base_confidence", 60)
-            conf.log_lvl = Config.get_config_value_optional(base_vals, "log_lvl", 20)
+            #conf.log_lvl = Config.get_config_value_optional(base_vals, "log_lvl", 20)
 
             # Addtional Checks
-            conf.log_lvl = Config.check_integer(conf.log_lvl, 20, 0, 50)
+            #conf.log_lvl = Config.check_integer(conf.log_lvl, 20, 0, 50)
             conf.base_confidence = Config.check_integer(conf.base_confidence, 60, 0, 100)
             conf.base_severity = Config.check_integer(conf.base_severity, 1, 0, 5)
         else:
@@ -221,7 +221,7 @@ class Config:
         # Parsing Event Values
         if "events" in configs:
             event_vals = configs["events"]
-            # Optional Values
+                # Optional Values
             conf.event_base_thread_level = Config.get_config_value_optional(event_vals, "base_threat_level", 3)
             conf.event_published = Config.get_config_value_optional(event_vals, "published", "False")
             conf.event_info_c2server = Config.get_config_value_optional(event_vals, "info_c2server", "TIE Daily C2Server")
@@ -242,46 +242,6 @@ class Config:
 
         return conf
 
-    def value_check(self):
-        # Mandatory fields
-        if self.tie_api_key is None or self.tie_api_key == "":
-            raise RuntimeError("No TIE API key found. An API Key is mandatory to start tie2misp")
-        if self.tie_api_url is None or self.tie_api_url == "":
-            raise RuntimeError("No TIE URL found. An URL is mandatory to start tie2misp")
-
-        # Optional fields
-        if self.log_lvl is None or not isinstance(self.log_lvl, int):
-            if self.log_lvl < 0 or self.log_lvl > 50:
-                logging.warning("False log level defined - log level should equal or between 0 and 50 - setting log level to default value")
-            else:
-                logging.warning("False log level defined - log level should be an integer value equal or between 0 and 50 - setting log level to default value")
-
-            self.log_lvl = 20
-
-        if self.misp_api_key is None or self.misp_api_key == "":
-            logging.warning("No MISP API key found. TIE2MISP will only work with --file flag")
-        if self.misp_api_url is None or self.misp_api_url == "":
-            logging.warning("No MISP URL found. TIE2MISP will only work with --file flag")
-        if self.org_name is None or self.org_name == "":
-            logging.warning("No organisation name is defined. MISP require a organisation name to work properly")
-        if self.org_uuid is None or len(self.org_uuid) <= 10:
-            logging.warning("No organisation UUID is set or UUID is to short. MISP require a organisation UUID to work properly")
-        if self.event_base_thread_level is None or self.event_base_thread_level == "":
-            logging.warning("No base thread level is set. Its recommended to set a proper base threat level. Threat level is set to 3.")
-            self.event_base_thread_level = "3"
-        if self.event_published is None or self.event_published == "":
-            logging.warning("No publishing parameter ist set. Its recommended to set a proper publishing parameter. Publishing is set to False")
-            self.event_published = "False"
-        if self.event_info_c2server is None or self.event_info_c2server == "":
-            logging.warning("No C2 Server info lable is set. Its recommended to set a proper C2 server info. Set default name.")
-            self.event_info_c2server = "TIE Daily C2Server"
-        if self.event_info_malware is None or self.event_info_malware == "":
-            logging.warning("No C2 Server info lable is set. Its recommended to set a proper C2 server info. Set default name.")
-            self.__Event_Info_Malware = "TIE Daily Malware"
-        if self.attr_tagging is None or self.attr_tagging == "":
-            logging.warning("No option to tag attributes found. Its recommended to define it with True or False")
-            self.attr_tagging = False
-
     @staticmethod
     def raise_error_critical(error_str):
         ERROR_BASE_STR = "Error parsing config.yml: "
@@ -295,27 +255,40 @@ class Config:
 
     @staticmethod
     def get_config_value_critical(val_dict, key):
-        if key in val_dict:
-            val = val_dict[key]
-            if val is None or val == "":
-                Config.raise_error_critical("Value for Key: " + key + " - could not found or is empty. A proper key and value is mandatory to start tie2misp")
+        if val_dict is not None:
+            if key in val_dict:
+                val = val_dict[key]
+                if val is None or val == "":
+                    Config.raise_error_critical("Value for Key: " + key + " - could not found or is empty. A proper key and value is mandatory to start tie2misp")
+                else:
+                    return val
             else:
-                return val
+                Config.raise_error_critical("Key: " + key + " - could not found. A proper key and value is mandatory to start tie2misp")
         else:
-            Config.raise_error_critical("Key: " + key + " - could not found. A proper key and value is mandatory to start tie2misp")
+            Config.raise_error_critical(
+                "Key: " + key + " - could not found. A proper key and value is mandatory to start tie2misp")
 
     @staticmethod
     def get_config_value_optional(val_dict, key, default_val=None):
-        if key in val_dict:
-            val = val_dict[key]
-            if val is None or val == "":
-                if default_val is None:
-                    Config.raise_error_warning("Key: " + key + " - could not been found or value is empty. A proper key and value is strongly recommended")
-                    val = None
-                else:
-                    Config.raise_error_warning("Key: " + key + " - could not been found or value is empty. Using the default value - " + str(default_val))
-                    val = default_val
+        if val_dict is not None:
+            if key in val_dict:
+                val = val_dict[key]
+                if val is None or val == "":
+                    if default_val is None:
+                        Config.raise_error_warning("Key: " + key + " - could not been found or value is empty. A proper key and value is strongly recommended!")
+                        val = None
+                    else:
+                        Config.raise_error_warning("Key: " + key + " - could not been found or value is empty. Using the default value - " + str(default_val))
+                        val = default_val
 
+            else:
+                val = default_val
+                Config.raise_error_warning("Key: " + key + " - could not been found. A proper key and value is strongly recommended!")
+        else:
+            val = default_val
+            Config.raise_error_warning(
+                "Key: " + key + " - could not been found. A proper key and value is strongly recommended!")
+        return val
 
 
     @staticmethod

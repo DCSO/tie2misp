@@ -107,7 +107,7 @@ class Loader:
                 finished = False
 
         # TIE is available?
-        if not connection_error:
+        if not noupload and not connection_error and conf.misp_api_key is not None and conf.misp_api_url is not None:
             # Add Base Tags
             if isinstance(event, C2Server):
                 if tags.c2tags_base is not None:
@@ -129,18 +129,21 @@ class Loader:
                 logging.info(outfile)
                 with open(outfile, "w") as text_file:
                     text_file.write(json_output)
+        else:
+            if not noupload and not connection_error:
+                logging.warning("Can not upload event. MISP API key or MISP API URL is missing")
 
     @staticmethod
     def init_logger(logPath, fileName, logLvl, consoleLog, fileLog):
 
-        root = logging.getLogger()
-        root.setLevel(logLvl)
-        formatter = logging.Formatter('%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s')
+        logger = logging.getLogger()
+        logger.setLevel(logLvl)
+        formatter = logging.Formatter('%(asctime)s [%(levelname)-5.5s]  %(message)s')
 
         consoleHandler = logging.StreamHandler(sys.stdout)
 
         consoleHandler.setFormatter(formatter)
-        root.addHandler(consoleHandler)
+        logger.addHandler(consoleHandler)
 
         if consoleLog is False:
             consoleHandler.setLevel(logLvl)
@@ -150,5 +153,6 @@ class Loader:
         if fileLog is False:
             fileHandler = logging.FileHandler("{0}/{1}.log".format(logPath, fileName))
             fileHandler.setFormatter(formatter)
-            root.addHandler(fileHandler)
+            fileHandler.setLevel(logLvl)
+            logger.addHandler(fileHandler)
 

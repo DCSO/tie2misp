@@ -4,7 +4,6 @@ base:
   misp_apiurl: "https://misp.foo.bar"
   misp_apikey: "asd22asdt9898asdfj120asd9213jas"
   misp_verifycert: "False"
-  log_lvl: 20 # 0 - NOTSET / 10 - DEBUG / 20 - INFO / 30 - WARNING / 40 - ERROR / 50 - CRITICAL
   base_severity: 3
   base_confidence: 60
 
