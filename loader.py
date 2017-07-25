@@ -44,7 +44,7 @@ class Loader:
         connection_retrys = 1
         while finished:
             try:
-                logging.info("Querry URL: " + url)
+                logging.info("Query URL: " + url)
                 myResponse = requests.get(url, headers=conf_authHeader)
                 # For successful API call, response code will be 200 (OK)
                 if myResponse.ok:
@@ -83,7 +83,7 @@ class Loader:
                             logging.warning("TIE answered with an empty reply")
 
                     except ValueError:
-                        logging.error("Error:\nInvalid or empty JSON Response")
+                        logging.error("Error: Invalid or empty JSON Response")
                 elif myResponse.status_code >= 500 and myResponse.status_code <= 550:
                     logging.warning("It seems there are connection issues with TIE at the moment")
                     logging.warning("Status-Code: " + str(myResponse.status_code) + " - Try: " + connection_retrys + " from 5")

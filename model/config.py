@@ -185,7 +185,7 @@ class Config:
             config_file = open(configfile, "r", encoding="utf-8")
             configs = yaml.load(config_file)
         except:
-            Config.raise_error_critical("Config file could not found. Please create a config file!")
+            Config.raise_error_critical("Config file could not find. Please create a config file!")
 
         # Config Values
         # Parsing Base Values
@@ -207,7 +207,7 @@ class Config:
             conf.base_confidence = Config.check_integer(conf.base_confidence, 60, 0, 100)
             conf.base_severity = Config.check_integer(conf.base_severity, 1, 0, 5)
         else:
-            Config.raise_error_critical("Could not found base values")
+            Config.raise_error_critical("Could not find base values")
 
         # Parsing Organisation Values
         if "organisation" in configs:
@@ -216,7 +216,7 @@ class Config:
             conf.org_name = Config.get_config_value_optional(organisation_vals, "name", None)
             conf.org_uuid = Config.get_config_value_optional(organisation_vals, "uuid", None)
         else:
-            Config.raise_error_critical("Could not found organisation values")
+            Config.raise_error_critical("Could not find organisation values")
 
         # Parsing Event Values
         if "events" in configs:
@@ -227,7 +227,7 @@ class Config:
             conf.event_info_c2server = Config.get_config_value_optional(event_vals, "info_c2server", "TIE Daily C2Server")
             conf.event_info_malware = Config.get_config_value_optional(event_vals, "info_malware", "TIE Daily Malware")
         else:
-            Config.raise_error_critical("Could not found event values")
+            Config.raise_error_critical("Could not find event values")
 
         # Parsing Attribute Values
         if "attributes" in configs:
@@ -235,7 +235,7 @@ class Config:
             conf.attr_to_ids = Config.get_config_value_optional(attr_vals, "to_ids", "True")
             conf.attr_tagging = Config.get_config_value_optional(attr_vals, "tagging", "True")
         else:
-            Config.raise_error_critical("Could not found attributes values ")
+            Config.raise_error_critical("Could not find attributes values ")
 
         conf.url_categories = "categories"
         conf.url_iocs = "iocs"
@@ -259,14 +259,14 @@ class Config:
             if key in val_dict:
                 val = val_dict[key]
                 if val is None or val == "":
-                    Config.raise_error_critical("Value for Key: " + key + " - could not found or is empty. A proper key and value is mandatory to start tie2misp")
+                    Config.raise_error_critical("Value for Key: " + key + " - could not find or is empty. A proper key and value is mandatory to start tie2misp")
                 else:
                     return val
             else:
-                Config.raise_error_critical("Key: " + key + " - could not found. A proper key and value is mandatory to start tie2misp")
+                Config.raise_error_critical("Key: " + key + " - could not find. A proper key and value is mandatory to start tie2misp")
         else:
             Config.raise_error_critical(
-                "Key: " + key + " - could not found. A proper key and value is mandatory to start tie2misp")
+                "Key: " + key + " - could not find. A proper key and value is mandatory to start tie2misp")
 
     @staticmethod
     def get_config_value_optional(val_dict, key, default_val=None):
@@ -275,19 +275,19 @@ class Config:
                 val = val_dict[key]
                 if val is None or val == "":
                     if default_val is None:
-                        Config.raise_error_warning("Key: " + key + " - could not been found or value is empty. A proper key and value is strongly recommended!")
+                        Config.raise_error_warning("Key: " + key + " - could not been find or value is empty. A proper key and value is strongly recommended!")
                         val = None
                     else:
-                        Config.raise_error_warning("Key: " + key + " - could not been found or value is empty. Using the default value - " + str(default_val))
+                        Config.raise_error_warning("Key: " + key + " - could not been find or value is empty. Using the default value - " + str(default_val))
                         val = default_val
 
             else:
                 val = default_val
-                Config.raise_error_warning("Key: " + key + " - could not been found. A proper key and value is strongly recommended!")
+                Config.raise_error_warning("Key: " + key + " - could not been find. A proper key and value is strongly recommended!")
         else:
             val = default_val
             Config.raise_error_warning(
-                "Key: " + key + " - could not been found. A proper key and value is strongly recommended!")
+                "Key: " + key + " - could not been find. A proper key and value is strongly recommended!")
         return val
 
 

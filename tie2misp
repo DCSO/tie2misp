@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-DCSO TIE2MISP Parser
+DCSO TIE2MISP Converter
 Copyright (c) 2017, DCSO GmbH
 """
 
@@ -18,27 +18,27 @@ import sys
 @click.argument('type')
 @click.option('--delay', default=0, help='Specify a delay from which data should be analyzed starting at the current '
                                          'date.\n\n As example:\n The current date is 2017-03-16 (YYYY-MM-DD). With '
-                                         '--delay 1 the parser would start at 2017-03-15')
-@click.option('--file', is_flag=True, help='If used, the parser will create an JSON event file with all processed '
+                                         '--delay 1 the converter would start at 2017-03-15')
+@click.option('--file', is_flag=True, help='If used, the converter will create an JSON event file with all processed '
                                            'attributes.')
-@click.option('--noupload', is_flag=True, help='If used, the parser will not upload the processed attributes to the '
+@click.option('--noupload', is_flag=True, help='If used, the converter will not upload the processed attributes to the '
                                                'MISP. Usefull in combination with --file to create only a local output '
                                                'file.')
-@click.option('--date', help='If a date is set, instead of using the actual date the parser will use the '
+@click.option('--date', help='If a date is set, instead of using the actual date the converter will use the '
                              'given date. The date must be given in the following format YYYY-MM-DD.')
 @click.option('--loglvl', default=20, help='Sets the log level. Default is 20.\n Params are: 0 - NOTSET / 10 - DEBUG / '
                                            '20 - INFO / 30 - WARNING / 40 - ERROR / 50 - CRITICAL')
-@click.option('--disable_console_log', is_flag=True, help='If used, the parse will not generate output in the console')
-@click.option('--disable_file_log', is_flag=True, help='If used, the parser will not generate output in the console')
-@click.option('--severity', type=int, help='Events with a severity value lower than the given value will not be parsed. If used, '
-                                 'the parser will ignore the severity value defined in the config file. The severity '
+@click.option('--disable_console_log', is_flag=True, help='If used, the convert will not generate output in the console')
+@click.option('--disable_file_log', is_flag=True, help='If used, the converter will not generate output in the console')
+@click.option('--severity', type=int, help='Events with a severity value lower than the given value will not be convertd. If used, '
+                                 'the converter will ignore the severity value defined in the config file. The severity '
                                  'value can be equal or between 0 and 5.')
-@click.option('--confidence', type=int, help='Events with a confidence value lower than the given value will not be parsed. If '
-                                   'used, the parser will ignore the severity value defined in the config file. The '
+@click.option('--confidence', type=int, help='Events with a confidence value lower than the given value will not be convertd. If '
+                                   'used, the converter will ignore the severity value defined in the config file. The '
                                    'confidence value can be equal or between 0 and 100')
 def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disable_file_log, severity, confidence):
     """
-    Starting the Parser with a given type of events that should be created.
+    Starting the converter with a given type of events that should be created.
 
     Choseable types:
     c2server, malware, actors
@@ -76,7 +76,7 @@ def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disa
         try:
             given_date = datetime.strptime(date, "%Y-%m-%d")
         except ValueError:
-            click.echo('Date could not be parsed. Please use the following format YYYY-MM-DD')
+            click.echo('Date could not be convertd. Please use the following format YYYY-MM-DD')
             error = True
 
     if isinstance(delay, int):
