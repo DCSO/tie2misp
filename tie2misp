@@ -28,14 +28,16 @@ import sys
                              'given date. The date must be given in the following format YYYY-MM-DD.')
 @click.option('--loglvl', default=20, help='Sets the log level. Default is 20.\n Params are: 0 - NOTSET / 10 - DEBUG / '
                                            '20 - INFO / 30 - WARNING / 40 - ERROR / 50 - CRITICAL')
-@click.option('--disable_console_log', is_flag=True, help='If used, the convert will not generate output in the console')
-@click.option('--disable_file_log', is_flag=True, help='If used, the converter will not generate output in the console')
-@click.option('--severity', type=int, help='Events with a severity value lower than the given value will not be convertd. If used, '
-                                 'the converter will ignore the severity value defined in the config file. The severity '
-                                 'value can be equal or between 0 and 5.')
-@click.option('--confidence', type=int, help='Events with a confidence value lower than the given value will not be convertd. If '
-                                   'used, the converter will ignore the severity value defined in the config file. The '
-                                   'confidence value can be equal or between 0 and 100')
+@click.option('--disable_console_log', is_flag=True, help='If used, the convert will not generate output in the '
+                                                          'console')
+@click.option('--disable_file_log', is_flag=True, help='If used, the converter will not generate a file output')
+@click.option('--severity', type=int, help='Events with a severity value lower than the given value will not be '
+                                           'converted. If used, the converter will ignore the severity value defined '
+                                           'in the config file. The severity value can be equal or between 0 and 5.')
+@click.option('--confidence', type=int, help='Events with a confidence value lower than the given value will not be '
+                                             'converted. If used, the converter will ignore the severity value defined '
+                                             'in the config file. The confidence value can be equal or between 0 and '
+                                             '100')
 def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disable_file_log, severity, confidence):
     """
     Starting the converter with a given type of events that should be created.
@@ -76,7 +78,7 @@ def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disa
         try:
             given_date = datetime.strptime(date, "%Y-%m-%d")
         except ValueError:
-            click.echo('Date could not be convertd. Please use the following format YYYY-MM-DD')
+            click.echo('Date could not be converted. Please use the following format YYYY-MM-DD')
             error = True
 
     if isinstance(delay, int):
