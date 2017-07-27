@@ -4,6 +4,8 @@ base:
   misp_apiurl: "https://misp.foo.bar"
   misp_apikey: "asd22asdt9898asdfj120asd9213jas"
   misp_verifycert: "False"
+  base_severity: 3
+  base_confidence: 60
 
 organisation:
   name: "ACME"

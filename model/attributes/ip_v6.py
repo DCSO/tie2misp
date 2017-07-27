@@ -37,7 +37,8 @@ class IPv6(MISPAttribute):
         return ipv6
 
     def upload(self, misp, event, config):
-        attr = misp.add_ipdst(event, self.value, self.category, True, self.comment, None, False)
-        if config.attr_tagging:
-            self.upload_tags(misp, attr)
+        if self.severity >= config.base_severity and self.confidence >= config.base_confidence:
+            attr = misp.add_ipdst(event, self.value, self.category, True, self.comment, None, False)
+            if config.attr_tagging:
+                self.upload_tags(misp, attr)
 

@@ -8,6 +8,7 @@ import uuid
 from abc import ABCMeta, abstractstaticmethod, abstractmethod
 from .misp_attribute import MISPAttribute
 from pymisp import PyMISP
+import logging
 
 
 class MISPEvent(metaclass=ABCMeta):
@@ -145,11 +146,11 @@ class MISPEvent(metaclass=ABCMeta):
 
         index = 1
         length = len(self.attributes)
-        print("Uploading " + str(length) + " Attributes ")
+        logging.info("Uploading " + str(length) + " Attributes ")
 
         for attr in self.attributes:
             if index % 10 == 0 or index == length:
-                print('Attribute: ' + str(index) + ' from ' + str(length))
+                logging.info('Attribute: ' + str(index) + ' from ' + str(length))
             attr.upload(misp, event, config)
             index += 1
 

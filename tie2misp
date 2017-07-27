@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-DCSO TIE2MISP Parser
+DCSO TIE2MISP Converter
 Copyright (c) 2017, DCSO GmbH
 """
 
@@ -10,29 +10,61 @@ from datetime import datetime, timedelta
 from model import Config
 from model import Tags
 from loader import Loader
+import logging
+import sys
 
 
 @click.command()
 @click.argument('type')
 @click.option('--delay', default=0, help='Specify a delay from which data should be analyzed starting at the current '
                                          'date.\n\n As example:\n The current date is 2017-03-16 (YYYY-MM-DD). With '
-                                         '--delay 1 the parser would start at 2017-03-15')
-@click.option('--file', is_flag=True, help='If used, the parser will create an JSON event file with all processed '
+                                         '--delay 1 the converter would start at 2017-03-15')
+@click.option('--file', is_flag=True, help='If used, the converter will create an JSON event file with all processed '
                                            'attributes.')
-@click.option('--noupload', is_flag=True, help='If used, the parser will not upload the processed attributes to the '
+@click.option('--noupload', is_flag=True, help='If used, the converter will not upload the processed attributes to the '
                                                'MISP. Usefull in combination with --file to create only a local output '
                                                'file.')
-@click.option('--date', help='If a date is set, instead of using the actual date the parser will use the '
+@click.option('--date', help='If a date is set, instead of using the actual date the converter will use the '
                              'given date. The date must be given in the following format YYYY-MM-DD.')
-def startup(type, delay, file, noupload, date):
-    error = False
-    given_date = ''
+@click.option('--loglvl', default=20, help='Sets the log level. Default is 20.\n Params are: 0 - NOTSET / 10 - DEBUG / '
+                                           '20 - INFO / 30 - WARNING / 40 - ERROR / 50 - CRITICAL')
+@click.option('--disable_console_log', is_flag=True, help='If used, the convert will not generate output in the '
+                                                          'console')
+@click.option('--disable_file_log', is_flag=True, help='If used, the converter will not generate a file output')
+@click.option('--severity', type=int, help='Events with a severity value lower than the given value will not be '
+                                           'converted. If used, the converter will ignore the severity value defined '
+                                           'in the config file. The severity value can be equal or between 0 and 5.')
+@click.option('--confidence', type=int, help='Events with a confidence value lower than the given value will not be '
+                                             'converted. If used, the converter will ignore the severity value defined '
+                                             'in the config file. The confidence value can be equal or between 0 and '
+                                             '100')
+def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disable_file_log, severity, confidence):
     """
-    Starting the Parser with a given type of events that should be created.
+    Starting the converter with a given type of events that should be created.
 
     Choseable types:
     c2server, malware, actors
     """
+    error = False
+    given_date = ''
+    loglvl_set = False
+    confidence_set = False
+    severity_set = False
+
+
+    #check loglvl
+    if isinstance(loglvl, int):
+        if loglvl < 0 or loglvl > 50:
+            click.echo(
+                'loglvl must be equal or between 0 and 50. Type \'python tie2misp.py --help\' for'
+                ' more information\'s.\nSet default value: 20')
+            loglvl = 20
+    else:
+        click.echo('loglvl must be an unsigned integer value equal or between 0 and 50. Type \'python tie2misp.py '
+                   '--help\' for more information\'s.\nSet default value: 20' )
+        loglvl = 20
+    Loader.init_logger(sys.path[0], "tie2misp", loglvl, disable_console_log, disable_file_log)
+
     if type == 'c2server':
         pass
     elif type == 'malware':
@@ -46,7 +78,7 @@ def startup(type, delay, file, noupload, date):
         try:
             given_date = datetime.strptime(date, "%Y-%m-%d")
         except ValueError:
-            click.echo('Date could not be parsed. Please use the following format YYYY-MM-DD')
+            click.echo('Date could not be converted. Please use the following format YYYY-MM-DD')
             error = True
 
     if isinstance(delay, int):
@@ -59,21 +91,52 @@ def startup(type, delay, file, noupload, date):
         click.echo('Delay must be an unsigned integer value')
         error = True
 
+    # Check confidence
+    if confidence is not None:
+        if isinstance(confidence, int):
+            if confidence < 0 or confidence > 100:
+                error = True
+                click.echo('The confidence value must be an unsigned integer value equal or between 0 and 100')
+            else:
+                confidence_set = True
+        else:
+            error = True
+            click.echo('The confidence value must be an unsigned integer value')
+
+    # Check severity
+    if severity is not None:
+        if isinstance(severity, int):
+            if severity < 0 or severity > 5:
+                error = True
+                click.echo('The severity value must be an unsigned integer value equal or between 0 and 5')
+            else:
+                severity_set = True
+        else:
+            error = True
+            click.echo('The severity value must be an unsigned integer value')
+
+
     if not error:
         # Loading config file
         try:
             conf = Config.parse("settings/config.yml")
             tags = Tags.parse("settings/tags.yml")
+
+            if severity_set:
+                conf.base_severity = severity
+
+            if confidence_set:
+                conf.base_severity = confidence
+
             # calculate start date
+            logging.info("#### Start new TIE-Querry: " + type + " ####")
             if given_date != '':
                 Loader.start(conf, tags, type, given_date, file, noupload)
             else:
                 dt = datetime.now() - timedelta(days=delay)
                 Loader.start(conf, tags, type, dt, file, noupload)
         except FileNotFoundError:
-            print("Error:")
-            print("config.yml and/or tags.yml not found")
-
+            logging.error("Error: \nconfig.yml and/or tags.yml not found")
 
 if __name__ == '__main__':
     startup()
