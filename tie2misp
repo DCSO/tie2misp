@@ -16,6 +16,7 @@ import sys
 
 @click.command()
 @click.argument('type')
+@click.option('--searchfile', type=click.File('r', None, 'strict', None, False))
 @click.option('--delay', default=0, help='Specify a delay from which data should be analyzed starting at the current '
                                          'date.\n\n As example:\n The current date is 2017-03-16 (YYYY-MM-DD). With '
                                          '--delay 1 the converter would start at 2017-03-15')
@@ -38,7 +39,7 @@ import sys
                                              'converted. If used, the converter will ignore the severity value defined '
                                              'in the config file. The confidence value can be equal or between 0 and '
                                              '100')
-def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disable_file_log, severity, confidence):
+def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disable_file_log, severity, confidence, searchfile):
     """
     Starting the converter with a given type of events that should be created.
 
@@ -68,6 +69,20 @@ def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disa
     if type == 'c2server':
         pass
     elif type == 'malware':
+        pass
+    elif type == 'actor':
+        if searchfile is not None:
+           pass
+        else:
+            click.echo('Argument actor only works with a given file. Use --searchlist to declare an file for input')
+            error = True
+        pass
+    elif type == 'family':
+        if searchfile is not None:
+           pass
+        else:
+            click.echo('Argument actor only works with a given file. Use --searchlist to declare an file for input')
+            error = True
         pass
     else:
         error = True
@@ -131,10 +146,10 @@ def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disa
             # calculate start date
             logging.info("#### Start new TIE-Querry: " + type + " ####")
             if given_date != '':
-                Loader.start(conf, tags, type, given_date, file, noupload)
+                Loader.start(conf, tags, type, given_date, file, noupload, searchfile)
             else:
                 dt = datetime.now() - timedelta(days=delay)
-                Loader.start(conf, tags, type, dt, file, noupload)
+                Loader.start(conf, tags, type, dt, file, noupload, searchfile)
         except FileNotFoundError:
             logging.error("Error: \nconfig.yml and/or tags.yml not found")
 

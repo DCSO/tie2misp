@@ -91,10 +91,13 @@ ENV/
 # Settings
 !/settings/*.sample.yml
 /settings/config.yml
+/settings/tags.yml
 
 #IDEA Files
 .idea/
 
 #DSStatus
 .DS_Store
-/settings/tags.yml
+
+#Testfiles
+/testfiles/
