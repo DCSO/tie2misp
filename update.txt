@@ -1,0 +1,5 @@
+* fixing some small issues
+* adding support for family and actor based events
+* adding family and actor filter
+* adding proxy support
+* improving TIE crawling mechanism

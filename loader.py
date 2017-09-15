@@ -5,7 +5,7 @@ Copyright (c) 2017, DCSO GmbH
 import requests
 from requests import HTTPError, ConnectionError, ConnectTimeout
 from model import Config
-from model.events import C2Server, Malware
+from model.events import C2Server, Malware, Actor, Family
 from datetime import datetime, timedelta
 import logging
 import sys
@@ -14,7 +14,7 @@ import sys
 class Loader:
 
     @staticmethod
-    def start(conf, tags, type, startdate, file, noupload):
+    def start(conf, tags, type, startdate, file, noupload, searchfile):
 
         # Building Auth Header
         conf_authHeader = {'Authorization': 'Bearer ' + conf.tie_api_key}
@@ -38,14 +38,44 @@ class Loader:
                             conf.event_info_malware, startdate)
             category = 'malware'
 
-        url = conf.tie_api_url + conf.url_iocs + "?category=" + category + "&created_since=" + date_since + '&created_until=' + date_until
+        elif type == 'actor':
+            event = Actor(conf.org_name, conf.org_uuid, conf.event_base_thread_level, conf.event_published,
+                             conf.event_info_actor, startdate)
+            category = 'actor'
 
+        elif type == 'family':
+            event = Family(conf.org_name, conf.org_uuid, conf.event_base_thread_level, conf.event_published,
+                          conf.event_info_family, startdate)
+            category = 'family'
+
+        # Buildung parameters
+        payload = dict()
+        if category is 'c2server' or category is 'malware':
+            payload['category'] = category
+            payload['created_since'] = date_since
+            payload['created_until'] = date_until
+
+        else:
+            attr_list = ''
+            count = 0
+            for l in searchfile:
+                if count is 0:
+                    attr_list += l
+                else:
+                    attr_list += ',' + l
+                count += 1
+            attr_list = attr_list.replace('\n', '')
+            if category is 'actor':
+                payload['actor'] = attr_list
+            else:
+                payload['family'] = attr_list
+
+        url = conf.tie_api_url + conf.url_iocs
         index = 0
         connection_retrys = 1
         while finished:
             try:
-                logging.info("Query URL: " + url)
-                myResponse = requests.get(url, headers=conf_authHeader)
+                myResponse = requests.get(url, params=payload, headers=conf_authHeader)
                 # For successful API call, response code will be 200 (OK)
                 if myResponse.ok:
                     # print(myResponse.status_code)
@@ -79,6 +109,10 @@ class Loader:
                                 C2Server.parse(event, val, tags)
                             elif type == 'malware':
                                 Malware.parse(event, val, tags)
+                            elif type == 'actor':
+                                Actor.parse(event, val, tags)
+                            elif type == 'family':
+                                Family.parse(event, val, tags)
                         else:
                             logging.warning("TIE answered with an empty reply")
 
@@ -118,20 +152,20 @@ class Loader:
                     for val in tags.c2tags_base:
                         event.append_tags(tags.c2tags_base[val])
 
-            if not noupload:
-                # Load things up
-                event.upload(conf)
+            # Load things up
+            event.upload(conf)
 
-            if file:
-                # Serialize event as MISP Event
-                json_output = event.serialize()
-                outfile = type + "_" + str(event.uuid) + ".json"
-                logging.info(outfile)
-                with open(outfile, "w") as text_file:
-                    text_file.write(json_output)
         else:
             if not noupload and not connection_error:
                 logging.warning("Can not upload event. MISP API key or MISP API URL is missing")
+
+        if file:
+            # Serialize event as MISP Event
+            json_output = event.serialize()
+            outfile = type + "_" + str(event.uuid) + ".json"
+            logging.info("Saved attributes as JSON-File: " + outfile)
+            with open(outfile, "w") as text_file:
+                text_file.write(json_output)
 
     @staticmethod
     def init_logger(logPath, fileName, logLvl, consoleLog, fileLog):

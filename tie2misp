@@ -1,8 +1,19 @@
 #!/usr/bin/env python3
 
 """
+################################################################################
+#                  ____  __  ____  ____  __  __  __  ____  ____                #
+#                 (_  _)(  )(  __)(___ \(  \/  )(  )/ ___)(  _ \               #
+#                   )(   )(  ) _)  / __//      \ )( \___ \ ) __/               #
+#                  (__) (__)(____)(____)\_ )(_ /(__)(____/(__)                 #
+#                                                                              #
+################################################################################
+
 DCSO TIE2MISP Converter
+
 Copyright (c) 2017, DCSO GmbH
+Project   - https://github.com/DCSO/tie2misp
+Mezzonian - https://github.com/Mezzonian
 """
 
 import click
@@ -12,10 +23,23 @@ from model import Tags
 from loader import Loader
 import logging
 import sys
+import signal as signal_module
 
 
+# CTRL+C Handler --------------------------------------------------------------
+def signal_handler(signal_name, frame):
+    try:
+        logging.info("------------------------------------------\n")
+        logging.info('TIE2MISP\'s has been interrupted. Shutting down flux capacitor.')
+    except Exception as e:
+        print('TIE2MISP\'s has been interrupted. Shutting down flux capacitor.')
+    sys.exit(0)
+
+
+# INIT TIE2MISP --------------------------------------------------------------
 @click.command()
 @click.argument('type')
+@click.option('--searchfile', type=click.File('r', None, 'strict', None, False))
 @click.option('--delay', default=0, help='Specify a delay from which data should be analyzed starting at the current '
                                          'date.\n\n As example:\n The current date is 2017-03-16 (YYYY-MM-DD). With '
                                          '--delay 1 the converter would start at 2017-03-15')
@@ -38,12 +62,12 @@ import sys
                                              'converted. If used, the converter will ignore the severity value defined '
                                              'in the config file. The confidence value can be equal or between 0 and '
                                              '100')
-def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disable_file_log, severity, confidence):
+def init(type, delay, file, noupload, date, loglvl, disable_console_log, disable_file_log, severity, confidence, searchfile):
     """
     Starting the converter with a given type of events that should be created.
 
     Choseable types:
-    c2server, malware, actors
+    c2server, malware, actors, family
     """
     error = False
     given_date = ''
@@ -51,6 +75,8 @@ def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disa
     confidence_set = False
     severity_set = False
 
+    # Signal handler for CTRL+C
+    signal_module.signal(signal_module.SIGINT, signal_handler)
 
     #check loglvl
     if isinstance(loglvl, int):
@@ -65,15 +91,30 @@ def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disa
         loglvl = 20
     Loader.init_logger(sys.path[0], "tie2misp", loglvl, disable_console_log, disable_file_log)
 
+    # Check parsing mode
     if type == 'c2server':
         pass
     elif type == 'malware':
+        pass
+    elif type == 'actor':
+        if searchfile is not None:
+           pass
+        else:
+            click.echo('Argument actor only works with a given file. Use --searchlist to declare an file for input')
+            error = True
+        pass
+    elif type == 'family':
+        if searchfile is not None:
+           pass
+        else:
+            click.echo('Argument actor only works with a given file. Use --searchlist to declare an file for input')
+            error = True
         pass
     else:
         error = True
         click.echo('Wrong Argument! Type \'python tie2misp.py --help\' for more information\'s')
 
-    # Parsing date
+    # Check date arguments
     if date is not None:
         try:
             given_date = datetime.strptime(date, "%Y-%m-%d")
@@ -115,10 +156,11 @@ def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disa
             error = True
             click.echo('The severity value must be an unsigned integer value')
 
-
+    # everything is fine -> start up
     if not error:
         # Loading config file
         try:
+            # Load config and tags
             conf = Config.parse("settings/config.yml")
             tags = Tags.parse("settings/tags.yml")
 
@@ -129,14 +171,17 @@ def startup(type, delay, file, noupload, date, loglvl, disable_console_log, disa
                 conf.base_severity = confidence
 
             # calculate start date
+            logging.info("Powering up flux capacitor. Starting up TIE2MISP.")
             logging.info("#### Start new TIE-Querry: " + type + " ####")
             if given_date != '':
-                Loader.start(conf, tags, type, given_date, file, noupload)
+                Loader.start(conf, tags, type, given_date, file, noupload, searchfile)
             else:
                 dt = datetime.now() - timedelta(days=delay)
-                Loader.start(conf, tags, type, dt, file, noupload)
+                Loader.start(conf, tags, type, dt, file, noupload, searchfile)
         except FileNotFoundError:
             logging.error("Error: \nconfig.yml and/or tags.yml not found")
 
+
+# MAIN ################################################################
 if __name__ == '__main__':
-    startup()
+    init()

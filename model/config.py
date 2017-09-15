@@ -19,6 +19,8 @@ class Config:
         self.__Event_Published = ""
         self.__Event_Info_C2Server = ""
         self.__Event_Info_Malware = ""
+        self.__Event_Info_Actor = ""
+        self.__Event_Info_Family = ""
         self.__Attr_ToIDS = ""
         self.__Attr_Tagging = False
         self.__URL_Categories = ""
@@ -26,6 +28,7 @@ class Config:
         self.__Log_Lvl = 40
         self.__Base_Confidence = 60
         self.__Base_Severity = 3
+
 
     # --- Getter
     @property
@@ -59,6 +62,15 @@ class Config:
     @property
     def event_info_malware(self):
         return self.__Event_Info_Malware
+
+    @property
+    def event_info_actor(self):
+        return self.__Event_Info_Actor
+
+    @property
+    def event_info_family(self):
+        return self.__Event_Info_Family
+
 
     @property
     def attr_to_ids(self):
@@ -133,6 +145,14 @@ class Config:
     @event_info_malware.setter
     def event_info_malware(self, value):
         self.__Event_Info_Malware = value
+
+    @event_info_c2server.setter
+    def event_info_actor(self, value):
+        self.__Event_Info_Actor = value
+
+    @event_info_malware.setter
+    def event_info_family(self, value):
+        self.__Event_Info_Family = value
 
     @attr_to_ids.setter
     def attr_to_ids(self, value):
@@ -224,8 +244,10 @@ class Config:
                 # Optional Values
             conf.event_base_thread_level = Config.get_config_value_optional(event_vals, "base_threat_level", 3)
             conf.event_published = Config.get_config_value_optional(event_vals, "published", "False")
-            conf.event_info_c2server = Config.get_config_value_optional(event_vals, "info_c2server", "TIE Daily C2Server")
-            conf.event_info_malware = Config.get_config_value_optional(event_vals, "info_malware", "TIE Daily Malware")
+            conf.event_info_c2server = Config.get_config_value_optional(event_vals, "info_c2server", "TIE C2Server")
+            conf.event_info_malware = Config.get_config_value_optional(event_vals, "info_malware", "TIE Malware")
+            conf.event_info_c2server = Config.get_config_value_optional(event_vals, "info_actor", "TIE Actor")
+            conf.event_info_malware = Config.get_config_value_optional(event_vals, "info_family", "TIE Family")
         else:
             Config.raise_error_critical("Could not find event values")
 
