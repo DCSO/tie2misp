@@ -136,8 +136,8 @@ class MISPEvent(metaclass=ABCMeta):
         self.__Tags.append(tag)
 
     # PyMISP Functions
-    def upload(self, config):
-        misp = PyMISP(config.misp_api_url, config.misp_api_key, False, debug=False)
+    def upload(self, config, proxy_addr_misp):
+        misp = PyMISP(config.misp_api_url, config.misp_api_key, False, debug=False, proxies=proxy_addr_misp)
         event = misp.new_event(0, config.event_base_thread_level, 2, self.info)
 
         # Upload all given event tags

@@ -75,7 +75,7 @@ but keep in mind that you could get a lot of IOCs...
 ## Using the actor or family filter
 
 ## Using a proxy
-TIE2MISP offers two ways for the use of a proxy. First, if the system variable HTTP_PROXY or HTTPS_PROXY is set, tie2misp will automatically use the given information
+TIE2MISP offers various ways for the use of a proxy. First, if the system variable HTTP_PROXY or HTTPS_PROXY is set, tie2misp will automatically use the given information
 
 If no system variable is used, tie2misp will check if the parameter `--proxy_http` or `--proxy_https` is set. If so, TIE2MISP will use the parameter for pulling and pushing informations. 
 
@@ -88,6 +88,17 @@ $ ./tie2misp c2server --date 2017-03-13 --proxy_http "http://10.8.0.1:8000 --pro
 With HTTP Basic Auth
 ```bash
 $ ./tie2misp c2server --date 2017-03-13 --proxy_http "http://user:pass@10.8.0.1:8000"
+```
+
+In some special case's, it's useful to only set a proxy for the connection to MISP or TIE. If the proxy parameter for TIE or MISP is
+used, TIE2MISP will ignore the `--proxy_http` or `--proxy_https` parameter as whole as the system variable HTTP_PROXY or HTTPS_PROXY.
+```bash
+$ ./tie2misp c2server --date 2017-03-13 --proxy_misp_http "http://10.8.0.1:8000"
+$ ./tie2misp c2server --date 2017-03-13 --proxy_tie_https "http://10.8.0.1:8443"
+```
+It's also possible to use a different Proxy for TIE and MISP together:
+```bash
+$ ./tie2misp c2server --date 2017-03-13 --proxy_misp_http "http://10.8.0.1:8000" --proxy_tie_https "http://10.8.0.1:8443
 ```
 
 # License

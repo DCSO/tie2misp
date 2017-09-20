@@ -3,3 +3,4 @@
 * adding family and actor filter
 * adding proxy support
 * improving TIE crawling mechanism
+# some small error handling improvements

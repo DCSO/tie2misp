@@ -14,7 +14,7 @@ import sys
 class Loader:
 
     @staticmethod
-    def start(conf, tags, type, startdate, file, noupload, searchfile):
+    def start(conf, tags, type, startdate, file, noupload, searchfile, proxy_misp_addr, proxy_tie_addr):
 
         # Building Auth Header
         conf_authHeader = {'Authorization': 'Bearer ' + conf.tie_api_key}
@@ -75,7 +75,7 @@ class Loader:
         connection_retrys = 1
         while finished:
             try:
-                myResponse = requests.get(url, params=payload, headers=conf_authHeader)
+                myResponse = requests.get(url, params=payload, headers=conf_authHeader, proxies=proxy_tie_addr)
                 # For successful API call, response code will be 200 (OK)
                 if myResponse.ok:
                     # print(myResponse.status_code)
@@ -153,7 +153,7 @@ class Loader:
                         event.append_tags(tags.c2tags_base[val])
 
             # Load things up
-            event.upload(conf)
+            event.upload(conf, proxy_misp_addr)
 
         else:
             if not noupload and not connection_error:
