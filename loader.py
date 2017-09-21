@@ -111,19 +111,16 @@ class Loader:
                         elif type == 'family':
                             Family.parse(event, response_iocs, tags)
 
-                        # Check if there are more values
-                        if 'has_more' in jsonResponse:
-                            val = jsonResponse['has_more']
-                            if val is not True:
-                                finished = False
-                                logging.info("There are no more attributes")
-                                logging.info("#### Finished #####")
-                                break
-                            else:
-                                if isinstance(myResponse.links, dict):
-                                    res = myResponse.links["next"]
-                                    url = res["url"]
-                                    logging.info("#### Continue #####")
+                        if response_has_more is not True:
+                            finished = False
+                            logging.info("There are no more attributes")
+                            logging.info("#### Finished #####")
+                            break
+                        else:
+                            if isinstance(myResponse.links, dict):
+                                res = myResponse.links["next"]
+                                url = res["url"]
+                                logging.info("#### Continue #####")
 
                     except ValueError:
                         logging.error("Error: Invalid or empty JSON Response")
