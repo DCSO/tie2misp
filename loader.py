@@ -50,7 +50,7 @@ class Loader:
 
         # Buildung parameters
         payload = dict()
-        if category is 'c2server' or category is 'malware':
+        if category == 'c2-server' or category == 'malware':
             payload['category'] = category
             payload['created_since'] = date_since
             payload['created_until'] = date_until
@@ -87,6 +87,30 @@ class Loader:
                     try:
                         jsonResponse = myResponse.json()
 
+                        # check is TIE Response is complete
+                        response_has_more = None
+                        response_iocs = None
+                        response_params = None
+                        if 'has_more' in jsonResponse and 'iocs' in jsonResponse and 'params' in jsonResponse:
+                            response_has_more = jsonResponse['has_more']
+                            response_iocs = jsonResponse['iocs']
+                            response_params = jsonResponse['params']
+                        else:
+                            raise ValueError("Error: TIE answered with an invalid or empty JSON Response")
+
+                        # parsing received IOC's
+                        logging.info("Parsing... - Offset: " + str(index) + " to " + str(index + len(response_iocs)))
+                        index += len(response_iocs)
+
+                        if type == 'c2server':
+                            C2Server.parse(event, response_iocs, tags)
+                        elif type == 'malware':
+                            Malware.parse(event, response_iocs, tags)
+                        elif type == 'actor':
+                            Actor.parse(event, response_iocs, tags)
+                        elif type == 'family':
+                            Family.parse(event, response_iocs, tags)
+
                         # Check if there are more values
                         if 'has_more' in jsonResponse:
                             val = jsonResponse['has_more']
@@ -100,21 +124,6 @@ class Loader:
                                     res = myResponse.links["next"]
                                     url = res["url"]
                                     logging.info("#### Continue #####")
-                        if 'iocs' in jsonResponse:
-                            val = jsonResponse['iocs']
-                            logging.info("Parsing... - Offset: " + str(index) + " to " + str(index + len(val)))
-                            index += len(val)
-
-                            if type == 'c2server':
-                                C2Server.parse(event, val, tags)
-                            elif type == 'malware':
-                                Malware.parse(event, val, tags)
-                            elif type == 'actor':
-                                Actor.parse(event, val, tags)
-                            elif type == 'family':
-                                Family.parse(event, val, tags)
-                        else:
-                            logging.warning("TIE answered with an empty reply")
 
                     except ValueError:
                         logging.error("Error: Invalid or empty JSON Response")
