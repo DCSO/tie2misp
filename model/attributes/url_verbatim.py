@@ -39,5 +39,7 @@ class URLVerbatim(MISPAttribute):
     def upload(self, misp, event, config):
         if self.severity >= config.base_severity and self.confidence >= config.base_confidence:
             attr = misp.add_url(event, self.value, self.category, True, self.comment, None, False)
-            if config.attr_tagging:
+            if 'Error' in attr:
+                raise ValueError('Error')
+            elif config.attr_tagging:
                 self.upload_tags(misp, attr)

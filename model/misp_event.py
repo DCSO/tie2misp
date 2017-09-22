@@ -152,7 +152,13 @@ class MISPEvent(metaclass=ABCMeta):
         for attr in self.attributes:
             if index % 10 == 0 or index == length:
                 logging.info('Attribute: ' + str(index) + ' from ' + str(length))
-            attr.upload(misp, event, config)
+            try:
+                attr.upload(misp, event, config)
+            except ValueError as e:
+                if len(e.args) > 0:
+                    logging.warning(e.args[0])
+                else:
+                    logging.warning('Unknown error occured at uploading attributes')
             index += 1
 
 

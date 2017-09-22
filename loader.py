@@ -162,8 +162,7 @@ class Loader:
             try:
                 event.upload(conf, proxy_misp_addr)
             except Exception as e:
-                logging.error("Error uploading event to MISP. Something went wrong...\n" + e.message)
-
+                logging.error("Error uploading event to MISP. Something went wrong...\n")
 
         else:
             if not noupload and not connection_error:

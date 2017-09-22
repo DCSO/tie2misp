@@ -44,5 +44,8 @@ class MD5(MISPAttribute):
     def upload(self, misp, event, config):
         if self.severity >= config.base_severity and self.confidence >= config.base_confidence:
             attr = misp.add_hashes(event, self.category, None, self.value, None, None, None, self.comment, True, None, False)
-            if config.attr_tagging:
+            if 'errors' in attr:
+                raise ValueError('Error uploading attribute \'' + self.data_type + ':' + str(
+                    self.value) + '\'. A similar attribute already exists for this event')
+            elif config.attr_tagging:
                 self.upload_tags(misp, attr)
