@@ -240,6 +240,8 @@ def checkProxyUrls(proxy_http, proxy_https, system_proxy=True):
             raise_error_critical('HTTP Proxy address is to short or not valid ')
         # Address should be valid
         proxy_addrs['http'] = str(url_http.scheme + "://" + url_http.netloc)
+        # If not set, Request an PyMISP will not querry HTTPS Urls
+        proxy_addrs['https'] = str(url_http.scheme + "://" + url_http.netloc)
 
     # check if HTTPS attributes are valid
     if url_https is not None:
