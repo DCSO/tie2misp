@@ -102,3 +102,4 @@ ENV/
 #Testfiles
 /testfiles/
 .update.txt
+/update.txt
