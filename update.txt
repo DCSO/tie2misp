@@ -1,6 +1,0 @@
-* fixed some small issues
-* improved error handling
-* added support for family and actor based events
-* added proxy support
-* improved TIE crawling mechanism
-* fixed an error interrupts the upload of attributes to MISP if the attribute already exist
