@@ -33,6 +33,7 @@ class MD5(MISPAttribute):
         md5.id = item["id"]
         md5.severity = item["max_severity"]
         md5.confidence = item["max_confidence"]
+        md5.category = 'Payload delivery'
 
         # replace 'mdf:' in front of the hash
         if md5.value.startswith('md5:'):

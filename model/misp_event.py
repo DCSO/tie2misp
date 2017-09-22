@@ -112,7 +112,8 @@ class MISPEvent(metaclass=ABCMeta):
 
         list_tags = list()
         for item in self.tags:
-            list_tags.append(item.serialize())
+            #list_tags.append(item.serialize())
+            list_tags.append(item)
 
         json_object['Attribute'] = list_attr
         json_object['Tag'] = list_tags

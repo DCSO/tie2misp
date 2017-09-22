@@ -33,6 +33,7 @@ class SHA256(MISPAttribute):
         sha256.id = item["id"]
         sha256.severity = item["max_severity"]
         sha256.confidence = item["max_confidence"]
+        sha256.category = 'Payload delivery'
 
         # replace 'mdf:' in front of the hash
         if sha256.value.startswith('sha256:'):

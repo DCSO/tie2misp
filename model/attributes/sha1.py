@@ -33,6 +33,7 @@ class SHA1(MISPAttribute):
         sha1.id = item["id"]
         sha1.severity = item["max_severity"]
         sha1.confidence = item["max_confidence"]
+        sha1.category = 'Payload delivery'
 
         # replace 'mdf:' in front of the hash
         if sha1.value.startswith('sha1:'):

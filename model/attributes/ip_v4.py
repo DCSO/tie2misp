@@ -33,6 +33,7 @@ class IPv4(MISPAttribute):
         ipv4.id = item["id"]
         ipv4.severity = item["max_severity"]
         ipv4.confidence = item["max_confidence"]
+        ipv4.category = 'Network activity'
 
         # replace 'mdf:' in front of the hash
         if ipv4.value.find('/32', 0, len(ipv4.value)) :

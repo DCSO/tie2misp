@@ -159,7 +159,11 @@ class Loader:
                         event.append_tags(tags.c2tags_base[val])
 
             # Load things up
-            event.upload(conf, proxy_misp_addr)
+            try:
+                event.upload(conf, proxy_misp_addr)
+            except Exception as e:
+                logging.error("Error uploading event to MISP. Something went wrong...\n" + e.message)
+
 
         else:
             if not noupload and not connection_error:

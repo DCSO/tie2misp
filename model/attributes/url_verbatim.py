@@ -33,6 +33,7 @@ class URLVerbatim(MISPAttribute):
         url.id = item["id"]
         url.severity = item["max_severity"]
         url.confidence = item["max_confidence"]
+        url.category = 'Network activity'
         return url
 
     def upload(self, misp, event, config):

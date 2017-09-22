@@ -34,6 +34,7 @@ class IPv6(MISPAttribute):
         ipv6.id = item["id"]
         ipv6.severity = item["max_severity"]
         ipv6.confidence = item["max_confidence"]
+        ipv6.category = 'Network activity'
         return ipv6
 
     def upload(self, misp, event, config):

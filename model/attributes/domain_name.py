@@ -33,6 +33,7 @@ class DomainName(MISPAttribute):
         dn.id = item["id"]
         dn.severity = item["max_severity"]
         dn.confidence = item["max_confidence"]
+        dn.category = 'Network activity'
         return dn
 
     def upload(self, misp, event, config):
