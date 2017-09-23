@@ -33,6 +33,7 @@ class SHA1(MISPAttribute):
         sha1.id = item["id"]
         sha1.severity = item["max_severity"]
         sha1.confidence = item["max_confidence"]
+        sha1.category = 'Payload delivery'
 
         # replace 'mdf:' in front of the hash
         if sha1.value.startswith('sha1:'):
@@ -43,5 +44,8 @@ class SHA1(MISPAttribute):
     def upload(self, misp, event, config):
         if self.severity >= config.base_severity and self.confidence >= config.base_confidence:
             attr = misp.add_hashes(event, self.category, None, None, self.value, None, None, self.comment, True, None, False)
-            if config.attr_tagging:
+            if 'errors' in attr:
+                raise ValueError('Error uploading attribute \'' + self.data_type + ':' + str(
+                    self.value) + '\'. A similar attribute already exists for this event')
+            elif config.attr_tagging:
                 self.upload_tags(misp, attr)

@@ -69,6 +69,62 @@ $ ./tie2misp c2server --delay 1
 the parser will process with the system date 2017-03-14 all IOCs from 2017-03-13. You could define a delay greater 1
 but keep in mind that you could get a lot of IOCs...
 
+## Using the actor or family parameter
+Sometimes it's necessary to get all IOC's from a specific attacker group or tool family. In most cases these are known 
+under more than one name. Because of this, TIE2MISP offers the capability to search for this values with the actor or 
+family parameter.
+
+To do this, you must create a simple file that contains the values that you want to search (the file can contain 1-n values).
+```bash
+vim crazypanda_families.txt
+```
+The file itself might looks like this
+```
+$ cat crazypanda_families.txt
+pythus
+agentblob
+hydra
+foo
+bar
+```
+
+Query family based IOC's
+```bash
+$ ./tie2misp family --searchfile crazypanda_families.txt
+```
+
+Query actor based IOC's
+```bash
+$ ./tie2misp actor --searchfile crazypanda_actor_names.txt
+```
+
+## Using a proxy
+TIE2MISP offers various ways for the use of a proxy. First, if the system variable `HTTP_PROXY` or `HTTPS_PROXY` is 
+set, tie2misp will automatically use the given information's.
+
+If no system variable is used, tie2misp will check if the parameter `--proxy_http` or `--proxy_https` is set. If so, TIE2MISP will use the parameter for pulling and pushing informations. 
+
+You can use only `--proxy_http` or `--proxy_https` or both
+```bash
+$ ./tie2misp c2server --date 2017-03-13 --proxy_http "http://10.8.0.1:8000"
+$ ./tie2misp c2server --date 2017-03-13 --proxy_http "http://10.8.0.1:8000 --proxy_https "http://10.8.0.1:8443"
+```
+With HTTP Basic Auth
+```bash
+$ ./tie2misp c2server --date 2017-03-13 --proxy_http "http://user:pass@10.8.0.1:8000"
+```
+
+In some special case's, it's useful to only set a proxy for the connection to MISP or TIE. If the proxy parameter for TIE or MISP is
+used, TIE2MISP will ignore the `--proxy_http` or `--proxy_https` parameter as whole as the system variable `HTTP_PROXY` or `HTTPS_PROXY`.
+```bash
+$ ./tie2misp c2server --date 2017-03-13 --proxy_misp_http "http://10.8.0.1:8000"
+$ ./tie2misp c2server --date 2017-03-13 --proxy_tie_https "http://10.8.0.1:8443"
+```
+It's also possible to use a different Proxy for TIE and MISP together:
+```bash
+$ ./tie2misp c2server --date 2017-03-13 --proxy_misp_http "http://10.8.0.1:8000" --proxy_tie_https "http://10.8.0.1:8443
+```
+
 # License
 
 This software is released under a BSD 3-Clause license.

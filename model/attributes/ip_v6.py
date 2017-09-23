@@ -34,11 +34,15 @@ class IPv6(MISPAttribute):
         ipv6.id = item["id"]
         ipv6.severity = item["max_severity"]
         ipv6.confidence = item["max_confidence"]
+        ipv6.category = 'Network activity'
         return ipv6
 
     def upload(self, misp, event, config):
         if self.severity >= config.base_severity and self.confidence >= config.base_confidence:
             attr = misp.add_ipdst(event, self.value, self.category, True, self.comment, None, False)
-            if config.attr_tagging:
+            if 'errors' in attr:
+                raise ValueError('Error uploading attribute \'' + self.data_type + ':' + str(
+                    self.value) + '\'. A similar attribute already exists for this event')
+            elif config.attr_tagging:
                 self.upload_tags(misp, attr)
 

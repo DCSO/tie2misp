@@ -7,7 +7,7 @@ from model.misp_event import MISPEvent, MISPAttribute
 import logging
 
 
-class C2Server(MISPEvent):
+class Actor(MISPEvent):
 
     def __init__(self, organisation_name, organisation_uuid, threat_level_id, published, info, date):
         MISPEvent.__init__(self, organisation_name, organisation_uuid, threat_level_id, published, info, date)
@@ -18,7 +18,7 @@ class C2Server(MISPEvent):
     """
     @staticmethod
     def parse(misp_event, val, tags):
-        if isinstance(misp_event, C2Server) and isinstance(val, list):
+        if isinstance(misp_event, Actor) and isinstance(val, list):
             index = 1
             length = len(val)
             for item in val:

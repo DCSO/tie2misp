@@ -112,7 +112,8 @@ class MISPEvent(metaclass=ABCMeta):
 
         list_tags = list()
         for item in self.tags:
-            list_tags.append(item.serialize())
+            #list_tags.append(item.serialize())
+            list_tags.append(item)
 
         json_object['Attribute'] = list_attr
         json_object['Tag'] = list_tags
@@ -136,8 +137,8 @@ class MISPEvent(metaclass=ABCMeta):
         self.__Tags.append(tag)
 
     # PyMISP Functions
-    def upload(self, config):
-        misp = PyMISP(config.misp_api_url, config.misp_api_key, False, debug=False)
+    def upload(self, config, proxy_addr_misp):
+        misp = PyMISP(config.misp_api_url, config.misp_api_key, False, debug=False, proxies=proxy_addr_misp)
         event = misp.new_event(0, config.event_base_thread_level, 2, self.info)
 
         # Upload all given event tags
@@ -151,7 +152,13 @@ class MISPEvent(metaclass=ABCMeta):
         for attr in self.attributes:
             if index % 10 == 0 or index == length:
                 logging.info('Attribute: ' + str(index) + ' from ' + str(length))
-            attr.upload(misp, event, config)
+            try:
+                attr.upload(misp, event, config)
+            except ValueError as e:
+                if len(e.args) > 0:
+                    logging.warning(e.args[0])
+                else:
+                    logging.warning('Unknown error occured at uploading attributes')
             index += 1
 
 

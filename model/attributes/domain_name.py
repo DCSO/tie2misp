@@ -33,10 +33,14 @@ class DomainName(MISPAttribute):
         dn.id = item["id"]
         dn.severity = item["max_severity"]
         dn.confidence = item["max_confidence"]
+        dn.category = 'Network activity'
         return dn
 
     def upload(self, misp, event, config):
         if self.severity >= config.base_severity and self.confidence >= config.base_confidence:
             attr = misp.add_domain(event, self.value, self.category, True, self.comment, None, False)
-            if config.attr_tagging:
+            if 'errors' in attr:
+                raise ValueError('Error uploading attribute \'' + self.data_type + ':' + str(
+                    self.value) + '\'. A similar attribute already exists for this event')
+            elif config.attr_tagging:
                 self.upload_tags(misp, attr)

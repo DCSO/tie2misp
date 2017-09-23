@@ -33,6 +33,7 @@ class IPv4(MISPAttribute):
         ipv4.id = item["id"]
         ipv4.severity = item["max_severity"]
         ipv4.confidence = item["max_confidence"]
+        ipv4.category = 'Network activity'
 
         # replace 'mdf:' in front of the hash
         if ipv4.value.find('/32', 0, len(ipv4.value)) :
@@ -43,5 +44,8 @@ class IPv4(MISPAttribute):
     def upload(self, misp, event, config):
         if self.severity >= config.base_severity and self.confidence >= config.base_confidence:
             attr = misp.add_ipdst(event, self.value, self.category, True, self.comment, None, False)
-            if config.attr_tagging:
+            if 'errors' in attr:
+                raise ValueError('Error uploading attribute \'' + self.data_type + ':' + str(
+                    self.value) + '\'. A similar attribute already exists for this event')
+            elif config.attr_tagging:
                 self.upload_tags(misp, attr)
