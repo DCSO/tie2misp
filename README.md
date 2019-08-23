@@ -1,5 +1,9 @@
-tie2misp [![Build Status](https://travis-ci.org/DCSO/tie2misp.svg?branch=master)](https://travis-ci.org/DCSO/tie2misp)
-=====
+# DEPRECATED 
+*tie2misp*  was replaced by [tiffy](https://github.com/DCSO/tiffy) and is therefore no longer supported. 
+
+--- 
+
+# tie2misp
 Import DCSO TIE IOCs as MISP events
 
 # Requirements
